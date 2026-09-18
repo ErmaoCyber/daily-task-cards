@@ -2,7 +2,7 @@
 
 A small React + Vite interaction prototype for a card-first daily planner. All data lives in memory and resets on refresh.
 
-The prototype is deliberately narrow: create a card, make one decision at a time, wrap up the day, then keep a quiet Day Card in History.
+The prototype is deliberately narrow: create a card, make one decision at a time, close the day once, then keep a quiet Day Card in History.
 
 ## Run
 
@@ -26,18 +26,19 @@ A gesture must exceed 65px and its main axis must be more than 1.4 times the oth
 
 `Not now` is temporary. It only removes a card from the current round. When the round ends, the card remains under **Still Today**.
 
-`Let Go` is a retained outcome, not a database-style delete. The prototype offers Undo for five seconds.
+`Let Go` is a retained outcome, not a database-style delete. During normal daytime use, the prototype offers Undo for five seconds.
 
 ## Daily flow
 
 1. Add cards for Today, Tomorrow, or a picked date.
 2. Process Today one card at a time.
 3. Open Today Overview to see what is still open, completed, moved, or let go.
-4. Choose **Wrap up today** when you are ready to finish the day.
-5. During Wrap Up, `Not now` is intentionally unavailable. Every remaining card needs a final choice: Done, Tomorrow, or Let Go.
-6. When Today is clear, review only the facts: outcomes, last night's sleep, and today's steps.
-7. Choose **Close today** to create a Day Card.
-8. Open **History** to look back at closed days.
+4. Sleep and steps are visible directly in Today Overview.
+5. Choose **Close Today** once when you are ready to end the day.
+6. If cards are still open, the app immediately asks for a final decision on each one: Done, Tomorrow, or Let Go. `Not now` is no longer available because there is no later once the day is being closed.
+7. As soon as the last open card is resolved, the Day Card is created automatically. There is no second confirmation screen.
+8. If nothing is still open, **Close Today** creates the Day Card immediately.
+9. Open **History** to look back at closed days.
 
 There is deliberately **no daily mood score or productivity grade**. The product principle is:
 
@@ -54,15 +55,15 @@ Time-specific alert choices do not schedule real notifications.
 - No backend or database.
 - No authentication.
 - No persistence; refresh resets the prototype.
-- Sleep and steps are mock/manual values.
+- Sleep is mock data and steps are manual.
 - No weekly report yet.
 - No AI.
 - No real notifications.
 
 ## Main files
 
-- `src/main.jsx` — App state, Today Deck, Today Overview, swipe lifecycle.
-- `src/DayFlow.jsx` — Close Day, Day Card and History.
+- `src/main.jsx` — App state, Today Deck, Today Overview, swipe lifecycle, and the single Close Today flow.
+- `src/DayFlow.jsx` — closed Day Card and History views.
 - `src/AddCard.jsx` — card creation/editing form.
 - `src/planner.js` — date, sorting, rollover and gesture helpers.
 - `src/style.css` — visual system and interaction styling.
