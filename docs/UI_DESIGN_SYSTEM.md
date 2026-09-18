@@ -935,14 +935,18 @@ Every second-level screen inside **Me** must support both explicit and gesture-b
 Required behaviours:
 
 - keep a visible back control such as `← Me`
-- support a swipe-right gesture that starts from the **left screen edge**
-- the edge gesture returns to the Me home screen
-- do not use a full-screen right-swipe gesture, because Reviews and future detail screens may use horizontal interaction internally
+- support a page-level swipe-right gesture on Me detail screens
+- do not require the gesture to begin inside the browser's extreme left edge
+- trigger back only when horizontal rightward movement is clearly stronger than vertical movement
+- normal vertical scrolling must continue to work
 - while swiping back, the current detail screen may follow the finger slightly to provide spatial feedback
 - if the gesture does not pass the return threshold, the screen settles back into place
+- once a back swipe is recognized, suppress the accidental click that may otherwise fire on the element under the finger
 - the gesture should never replace the visible back button; both paths must remain available
 
 This is a shared Me navigation rule, not a Life List-specific behaviour.
+
+The reason for avoiding an extreme-edge-only gesture is practical: mobile Safari and iOS may reserve the screen edge for browser/system navigation, making app-level edge gestures unreliable.
 
 ---
 
