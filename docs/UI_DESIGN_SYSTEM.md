@@ -346,9 +346,13 @@ Frozen interaction:
 Gesture feedback appears on the card.
 
 During an active drag, the current action must be immediately legible:
-- feedback is positioned toward the gesture direction
+- feedback is anchored to the deck, not nested inside the moving Card
+- the moving Card must never carry the Hint off-screen
 - feedback uses stronger contrast than passive helper text
-- the action label and direction/icon should remain readable while the card is moving
+- feedback should occupy the space revealed by the gesture rather than compete with Card content
+- horizontal gestures place feedback on the opposite revealed edge: swipe right reveals Done on the left, swipe left reveals Tomorrow on the right
+- vertical gestures follow the same principle: swipe up reveals Not Now near the bottom, swipe down reveals Let Go near the top
+- the action label and direction/icon should remain readable while the Card is moving
 - feedback disappears when the gesture ends
 
 The permanent four-direction legend should not remain on screen during normal use.
