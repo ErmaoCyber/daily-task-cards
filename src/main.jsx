@@ -219,6 +219,21 @@ function TodayDeck({
             <div className="deck-back first-back" />
           )}
 
+          {intent && (
+            <div
+              className={`deck-gesture-feedback feedback-${intent}`}
+              style={{ "--gesture-strength": strength }}
+              aria-hidden="true"
+            >
+              <span className="deck-feedback-icon">
+                {intent === "done"
+                  ? "✓"
+                  : actions[intent].arrow}
+              </span>
+              <strong>{actions[intent].feedback}</strong>
+            </div>
+          )}
+
           <article
             key={card.id}
             className={`focus-card ${
@@ -279,21 +294,6 @@ function TodayDeck({
             onPointerCancel={cancel}
             onLostPointerCapture={cancel}
           >
-            {intent && (
-              <div
-                className={`swipe-feedback feedback-${intent}`}
-                style={{ opacity: strength }}
-                aria-hidden="true"
-              >
-                <span>
-                  {intent === "done"
-                    ? "✓"
-                    : actions[intent].arrow}
-                </span>
-                <strong>{actions[intent].feedback}</strong>
-              </div>
-            )}
-
             <div className="card-content">
               <span
                 className={`card-time ${
