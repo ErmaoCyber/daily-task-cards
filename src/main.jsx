@@ -15,7 +15,7 @@ const actions = {
   done: { label: "Done", arrow: "→", feedback: "DONE" },
   tomorrow: { label: "Tomorrow", arrow: "←", feedback: "TOMORROW" },
   notnow: { label: "Not now", arrow: "↑", feedback: "NOT NOW" },
-  deleted: { label: "Delete", arrow: "↓", feedback: "DELETE" },
+  letgo: { label: "Let Go", arrow: "↓", feedback: "LET GO" },
 };
 const initialCards = [
   { id: 1, title: "Java Study", time: null, shortTime: null },
@@ -51,7 +51,7 @@ function TodayDeck({ cards, now, onAction, onEdit, onOverview }) {
         Math.max(0, (Math.max(Math.abs(drag.x), Math.abs(drag.y)) - 12) / 90),
       );
   const drop =
-    intent === "deleted" ? Math.min(Math.max(drag.y, 0) / 220, 1) : 0;
+    intent === "letgo" ? Math.min(Math.max(drag.y, 0) / 220, 1) : 0;
   const past =
     card.shortTime &&
     card.shortTime <
@@ -84,7 +84,7 @@ function TodayDeck({ cards, now, onAction, onEdit, onOverview }) {
     }
   }
   const transform = leaving
-    ? `translate(${leaving === "done" ? 460 : leaving === "tomorrow" ? -460 : 0}px, ${leaving === "deleted" ? 460 : leaving === "notnow" ? -460 : 0}px) rotate(${leaving === "done" ? 18 : leaving === "tomorrow" ? -18 : 0}deg) scale(${leaving === "deleted" ? 0.94 : 1})`
+    ? `translate(${leaving === "done" ? 460 : leaving === "tomorrow" ? -460 : 0}px, ${leaving === "letgo" ? 460 : leaving === "notnow" ? -460 : 0}px) rotate(${leaving === "done" ? 18 : leaving === "tomorrow" ? -18 : 0}deg) scale(${leaving === "letgo" ? 0.94 : 1})`
     : `translate(${drag.x}px, ${drag.y}px) rotate(${drag.x / 24}deg) scale(${1 - drop * 0.04})`;
   return (
     <section className="focus-view deck-mode">
@@ -165,7 +165,7 @@ function TodayDeck({ cards, now, onAction, onEdit, onOverview }) {
         <span className="hint-up">↑ Not now</span>
         <span>← Tomorrow</span>
         <span>→ Done</span>
-        <span className="hint-down">↓ Delete</span>
+        <span className="hint-down">↓ Let Go</span>
       </div>
       <p className="drag-note">Swipe to decide · Tap to edit</p>
     </section>
@@ -326,7 +326,7 @@ function App() {
   );
   const tomorrow = cards.filter(
     (card) =>
-      card.scheduledDate === plusDays(day, 1) && card.status !== "deleted",
+      card.scheduledDate === plusDays(day, 1) && card.status === "tomorrow",
   );
   useEffect(() => {
     if (mode === "deck" && deck.length === 0 && !editor) setMode("overview");
@@ -359,7 +359,7 @@ function App() {
             : action === "tomorrow"
               ? "Moved to tomorrow"
               : "Done",
-      undo: action === "deleted" ? original : null,
+      undo: action === "letgo" ? original : null,
     });
   }
   function enter(id) {
