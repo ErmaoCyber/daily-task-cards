@@ -2678,3 +2678,92 @@ button.overview-mini:hover {
     padding: 13px;
   }
 }
+
+
+/* Compact brand + swipe months */
+
+/* Keep branding present without reserving a full header band. */
+.brand {
+  position: fixed;
+  z-index: 30;
+  top: 18px;
+  left: 24px;
+  height: auto;
+  margin: 0;
+  border: 0;
+  gap: 0;
+  pointer-events: none;
+}
+
+.brand a {
+  pointer-events: auto;
+  font-size: 16px;
+  letter-spacing: -0.7px;
+  opacity: 0.9;
+}
+
+.brand-symbol {
+  font-size: 25px;
+  margin-right: 7px;
+}
+
+.brand-caption,
+.edition {
+  display: none !important;
+}
+
+main {
+  margin-top: 30px;
+}
+
+/* Month switching is gesture-first: drag the calendar left/right. */
+.calendar-month {
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.calendar-month.is-month-dragging {
+  cursor: grabbing;
+}
+
+.calendar-month-sheet {
+  transform: translateX(var(--month-drag, 0px));
+  transition: transform 220ms cubic-bezier(0.22, 0.8, 0.25, 1);
+  will-change: transform;
+}
+
+.calendar-month.is-month-dragging .calendar-month-sheet {
+  transition: none;
+}
+
+.calendar-month-bar {
+  display: block;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.calendar-month-bar strong {
+  display: block;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .brand {
+    display: none;
+  }
+
+  main {
+    margin-top: 22px;
+  }
+}
+
+@media (max-width: 600px) {
+  .calendar-month {
+    touch-action: pan-y;
+  }
+
+  .calendar-month-bar {
+    margin-bottom: 15px;
+  }
+}
