@@ -113,3 +113,19 @@ There is no daily mood score or productivity grade.
 - `src/AddCard.jsx` — card creation/editing, including Calendar-selected dates
 - `src/planner.js` — date, sorting, rollover, and gesture helpers
 - `src/style.css` — visual and interaction styling
+
+
+## Mobile app shell
+
+Mobile screens now follow one shared layout rule instead of being individually compressed:
+
+- **Fixed task screens:** Focus, Today Overview, Closing Today, Closed Day, and Calendar keep the primary task inside the viewport with fixed bottom navigation.
+- **Scrollable detail screens:** Add Card and detail sheets may scroll when the user intentionally opens more information.
+- Focus cards use the remaining viewport height instead of a fixed pixel height.
+- Today Overview keeps the active deck visible, condenses Done / Tomorrow / Let Go into a summary row, and opens each outcome in a bottom sheet.
+- Closing Today reuses the Focus geometry and moves its status into the deck header.
+- Closed Day is a compact one-screen result.
+- Add Card keeps the common Title + Date path near the top while optional fields may extend the page; the Add button stays sticky and reachable.
+- Full historical details stay inside bottom sheets rather than stretching the underlying screen.
+
+The mobile principle is: **the current primary task fits in one screen; intentional detail may scroll.**
