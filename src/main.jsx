@@ -4,6 +4,7 @@ import AddCard from "./AddCard";
 import { ClosedDay } from "./DayFlow";
 import CalendarView from "./CalendarView";
 import MeView from "./MeView";
+import PastDayFlow from "./PastDayFlow";
 import {
   createMockCards,
   createMockHistory,
@@ -826,9 +827,10 @@ function App() {
   const [history, setHistory] = useState(() =>
     createMockHistory(day),
   );
-  const [openPastDays] = useState(() =>
+  const [openPastDays, setOpenPastDays] = useState(() =>
     createMockOpenPastDays(day),
   );
+  const [pastResolution, setPastResolution] = useState(null);
   const [closedRecord, setClosedRecord] = useState(null);
   const [steps, setSteps] = useState(8642);
   const [showGestureCoach, setShowGestureCoach] =
@@ -1119,6 +1121,81 @@ function App() {
     });
   }
 
+  function startPastResolution(openDay) {
+    setToast(null);
+    setPastResolution({
+      date: openDay.date,
+      source: openDay,
+      remaining: [...(openDay.cards || [])],
+      done: [],
+      broughtForward: [],
+      letgo: [],
+    });
+  }
+
+  function resolvePastCard(action) {
+    if (!pastResolution?.remaining.length) return;
+
+    const [card, ...rest] = pastResolution.remaining;
+    const next = {
+      ...pastResolution,
+      remaining: rest,
+      done:
+        action === "done"
+          ? [...pastResolution.done, card.title]
+          : pastResolution.done,
+      broughtForward:
+        action === "today"
+          ? [...pastResolution.broughtForward, card.title]
+          : pastResolution.broughtForward,
+      letgo:
+        action === "letgo"
+          ? [...pastResolution.letgo, card.title]
+          : pastResolution.letgo,
+    };
+
+    if (action === "today") {
+      setCards((previous) => [
+        ...previous,
+        {
+          ...card,
+          id: nextId.current++,
+          scheduledDate: day,
+          status: undefined,
+          movedFrom: undefined,
+          broughtFrom: pastResolution.date,
+        },
+      ]);
+    }
+
+    if (rest.length) {
+      setPastResolution(next);
+      return;
+    }
+
+    const source = pastResolution.source;
+    const record = {
+      id: source.date,
+      date: source.date,
+      done: next.done,
+      tomorrow: [],
+      broughtForward: next.broughtForward,
+      letgo: next.letgo,
+      sleep: source.sleep || "—",
+      steps: source.steps || 0,
+    };
+
+    setHistory((previous) => [
+      record,
+      ...previous.filter((item) => item.id !== record.id),
+    ]);
+    setOpenPastDays((previous) =>
+      previous.filter((item) => item.date !== source.date),
+    );
+    setPastResolution(null);
+    setToast({ label: "Past day resolved" });
+  }
+
   const dateLabel =
     new Intl.DateTimeFormat("en", {
       weekday: "long",
@@ -1249,6 +1326,13 @@ function App() {
             onAdd={save}
             onBack={() => setEditor(null)}
           />
+        ) : pastResolution ? (
+          <PastDayFlow
+            day={pastResolution.source}
+            resolution={pastResolution}
+            onAction={resolvePastCard}
+            onBack={() => setPastResolution(null)}
+          />
         ) : page === "today" ? (
           todayContent
         ) : page === "calendar" ? (
@@ -1265,6 +1349,7 @@ function App() {
             }}
             onAddCard={(date) => openAddCard(date)}
             onEditCard={openEditCard}
+            onResolvePastDay={startPastResolution}
           />
         ) : (
           <MeView />
@@ -1272,7 +1357,7 @@ function App() {
       </main>
 
       <footer>
-        {!editor && (
+        {!editor && !pastResolution && (
           <nav className="primary-nav" aria-label="Primary">
             <button
               className={
