@@ -104,6 +104,10 @@ There is no daily mood score or productivity grade.
 - No weekly report yet
 - No AI
 
+## Design source of truth
+
+All future UI work should follow [`docs/UI_DESIGN_SYSTEM.md`](docs/UI_DESIGN_SYSTEM.md). It defines the shared mobile typography, spacing, surfaces, navigation, card geometry, responsive rules, and interaction principles.
+
 ## Main files
 
 - `src/main.jsx` — Today Deck, Overview, live status, routing, gestures, and Close Today
