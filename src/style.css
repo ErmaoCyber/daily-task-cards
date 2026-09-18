@@ -5140,3 +5140,213 @@ main {
     height: 20px;
   }
 }
+
+
+/* Overview fixed focus slot */
+
+.overview-fixed-focus {
+  overflow: hidden;
+}
+
+.overview-fixed-focus .overview-deck-stack {
+  position: relative;
+  overflow: hidden;
+}
+
+.overview-center-card,
+.overview-side-card {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  width: auto;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.overview-center-card {
+  z-index: 50;
+  height: 132px;
+  padding: 18px 22px;
+  background: #2d4537;
+  color: #f5f4e9;
+  transform: translateY(-50%);
+  box-shadow: 0 21px 39px -27px #22352aa8;
+  display: grid;
+  align-content: center;
+}
+
+.overview-center-content {
+  display: grid;
+  align-content: center;
+  animation: overview-content-change 180ms ease both;
+}
+
+.overview-center-card .overview-card-time,
+.overview-center-card small {
+  color: #bdcbb5;
+}
+
+.overview-center-card strong {
+  display: block;
+  margin-top: 3px;
+  font-family: "Manrope", sans-serif;
+  font-size: 23px;
+  font-weight: 500;
+  letter-spacing: -0.55px;
+}
+
+.overview-center-card small {
+  display: block;
+  margin-top: 6px;
+  font-size: 9px;
+}
+
+.overview-center-card.is-entering-card {
+  transform: translateY(-50%) scale(1.035);
+  box-shadow: 0 25px 48px -29px #22352abd;
+  transition:
+    transform 240ms ease,
+    box-shadow 240ms ease;
+}
+
+.overview-side-card {
+  z-index: calc(20 - abs(var(--slot)));
+  height: 76px;
+  padding: 14px 20px;
+  display: grid;
+  align-content: center;
+  background: #e5eadf;
+  color: #435647;
+  opacity: calc(1 - (abs(var(--slot)) * 0.17));
+  transform:
+    translateY(
+      calc(
+        -50% +
+        (var(--slot) * 62px)
+      )
+    )
+    scale(calc(1 - (abs(var(--slot)) * 0.025)));
+  box-shadow: 0 7px 20px -19px #25382d66;
+  transition:
+    transform 260ms cubic-bezier(0.22, 0.8, 0.25, 1),
+    opacity 220ms ease,
+    background 220ms ease;
+}
+
+.overview-side-card:nth-of-type(even) {
+  background: #dce4d6;
+}
+
+.overview-side-card .overview-card-time {
+  color: #7e8d77;
+}
+
+.overview-side-card strong {
+  display: block;
+  margin-top: 2px;
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.25px;
+}
+
+.overview-side-card small {
+  display: block;
+  margin-top: 4px;
+  color: #84917c;
+  font-size: 9px;
+}
+
+.overview-fixed-focus.is-dragging .overview-center-card {
+  cursor: grabbing;
+}
+
+.overview-fixed-focus.is-entering-focus .overview-side-card {
+  opacity: 0;
+  transform:
+    translateY(
+      calc(
+        -50% +
+        (var(--slot) * 42px)
+      )
+    )
+    scale(0.96);
+}
+
+@keyframes overview-content-change {
+  from {
+    opacity: 0.35;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .page-today .overview-fixed-focus .overview-deck-stack {
+    height: 270px;
+    min-height: 270px;
+  }
+
+  .page-today .overview-center-card,
+  .page-today .overview-side-card {
+    left: 4px;
+    right: 4px;
+  }
+
+  .page-today .overview-center-card {
+    height: 112px;
+    padding: 16px 18px;
+  }
+
+  .page-today .overview-center-card strong {
+    font-size: 21px;
+  }
+
+  .page-today .overview-side-card {
+    height: 68px;
+    padding: 12px 16px;
+    transform:
+      translateY(
+        calc(
+          -50% +
+          (var(--slot) * 50px)
+        )
+      )
+      scale(calc(1 - (abs(var(--slot)) * 0.02)));
+  }
+
+  .page-today .overview-side-card strong {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 600px) and (max-height: 720px) {
+  .page-today .overview-fixed-focus .overview-deck-stack {
+    height: 220px;
+    min-height: 220px;
+  }
+
+  .page-today .overview-center-card {
+    height: 94px;
+  }
+
+  .page-today .overview-center-card strong {
+    font-size: 19px;
+  }
+
+  .page-today .overview-side-card {
+    height: 58px;
+    transform:
+      translateY(
+        calc(
+          -50% +
+          (var(--slot) * 43px)
+        )
+      )
+      scale(calc(1 - (abs(var(--slot)) * 0.02)));
+  }
+}
