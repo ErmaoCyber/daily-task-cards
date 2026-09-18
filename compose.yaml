@@ -1,0 +1,7 @@
+services:
+  frontend:
+    build:
+      context: .
+    restart: unless-stopped
+    ports:
+      - "10.77.77.1:8080:80"
