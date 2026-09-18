@@ -5956,3 +5956,106 @@ main {
     font-size: 11px;
   }
 }
+
+
+/* Focus balance + stronger gesture feedback */
+
+/* Focus should use the available mobile canvas deliberately.
+ * The card may grow enough to balance the composition, but must still
+ * read as a physical card rather than a full-screen panel.
+ */
+@media (max-width: 600px) {
+  .page-today .focus-view {
+    margin-top: 14px;
+  }
+
+  .page-today .deck-stack {
+    --focus-height: min(430px, 52dvh);
+    min-height: 330px;
+  }
+
+  .page-today .focus-card {
+    min-height: 330px;
+  }
+
+  .page-today .focus-caption {
+    margin-top: 12px;
+    color: #8b9382;
+  }
+
+  /* Drag feedback is contextual and high-contrast.
+   * It only appears during an active gesture.
+   */
+  .page-today .swipe-feedback {
+    z-index: 8;
+    min-width: 96px;
+    padding: 10px 13px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-direction: row;
+    border-radius: 999px;
+    background: rgb(245 246 235 / 0.14);
+    border: 1px solid rgb(245 246 235 / 0.28);
+    box-shadow: 0 10px 24px rgb(20 35 27 / 0.14);
+    backdrop-filter: blur(8px);
+    color: #f5f6eb;
+  }
+
+  .page-today .swipe-feedback > span {
+    font-size: 19px;
+    line-height: 1;
+  }
+
+  .page-today .swipe-feedback strong {
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 1.15px;
+    font-weight: 600;
+  }
+
+  .page-today .feedback-done {
+    top: 50%;
+    right: 18px;
+    left: auto;
+    bottom: auto;
+    transform: translateY(-50%);
+    text-align: left;
+  }
+
+  .page-today .feedback-tomorrow {
+    top: 50%;
+    left: 18px;
+    right: auto;
+    bottom: auto;
+    transform: translateY(-50%);
+  }
+
+  .page-today .feedback-notnow {
+    top: 18px;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translateX(-50%);
+  }
+
+  .page-today .feedback-letgo {
+    top: auto;
+    left: 50%;
+    right: auto;
+    bottom: 18px;
+    transform: translateX(-50%);
+    text-align: left;
+  }
+}
+
+@media (max-width: 600px) and (max-height: 720px) {
+  .page-today .deck-stack {
+    --focus-height: min(360px, 49dvh);
+    min-height: 300px;
+  }
+
+  .page-today .focus-card {
+    min-height: 300px;
+  }
+}
