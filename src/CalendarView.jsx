@@ -340,6 +340,10 @@ export default function CalendarView({
   const selectedRecord = historyByDate.get(selectedDate);
   const selectedOpenPast = openPastByDate.get(selectedDate);
   const selectedCards = cardsForDate(selectedDate);
+  const hiddenPlannedCount = Math.max(
+    0,
+    selectedCards.length - 2,
+  );
 
   const todayOpen = cards.filter(
     (card) =>
@@ -492,19 +496,27 @@ export default function CalendarView({
         {selectedState === "future" && (
           <>
             {selectedCards.length ? (
-              <div className="calendar-planned-list">
-                {selectedCards.map((card) => (
-                  <button
-                    type="button"
-                    className="calendar-planned-card"
-                    key={card.id}
-                    onClick={() => onEditCard(card)}
-                  >
-                    <span>{card.time || "Anytime"}</span>
-                    <strong>{card.title}</strong>
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="calendar-planned-list">
+                  {selectedCards.map((card) => (
+                    <button
+                      type="button"
+                      className="calendar-planned-card"
+                      key={card.id}
+                      onClick={() => onEditCard(card)}
+                    >
+                      <span>{card.time || "Anytime"}</span>
+                      <strong>{card.title}</strong>
+                    </button>
+                  ))}
+                </div>
+
+                {hiddenPlannedCount > 0 && (
+                  <p className="calendar-more-count">
+                    +{hiddenPlannedCount} more
+                  </p>
+                )}
+              </>
             ) : (
               <p className="calendar-empty-copy">
                 Nothing planned yet.
