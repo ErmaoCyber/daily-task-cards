@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
@@ -135,6 +135,17 @@ export default function CalendarView({
 }) {
   const [selectedDate, setSelectedDate] = useState(today);
   const [monthCursor, setMonthCursor] = useState(() => monthStart(today));
+  const [monthDrag, setMonthDrag] = useState(0);
+  const [monthDragging, setMonthDragging] = useState(false);
+  const [monthAnimating, setMonthAnimating] = useState(false);
+  const monthOrigin = useRef(null);
+  const ignoreDayClick = useRef(false);
+  const monthTimer = useRef(null);
+
+  useEffect(
+    () => () => clearTimeout(monthTimer.current),
+    [],
+  );
 
   const historyByDate = useMemo(
     () => new Map(history.map((record) => [record.date, record])),
@@ -225,6 +236,104 @@ export default function CalendarView({
     setSelectedDate(dayKey(next));
   }
 
+  function beginMonthSwipe(event) {
+    if (
+      monthAnimating ||
+      !event.isPrimary ||
+      event.button !== 0
+    ) {
+      return;
+    }
+
+    monthOrigin.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    setMonthDragging(true);
+    event.currentTarget.setPointerCapture(
+      event.pointerId,
+    );
+  }
+
+  function moveMonthSwipe(event) {
+    const start = monthOrigin.current;
+    if (start?.id !== event.pointerId) return;
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+
+    if (Math.abs(dx) < Math.abs(dy)) return;
+
+    setMonthDrag(
+      Math.max(-120, Math.min(120, dx)),
+    );
+  }
+
+  function finishMonthSwipe(event) {
+    const start = monthOrigin.current;
+    if (start?.id !== event.pointerId) return;
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    monthOrigin.current = null;
+    setMonthDragging(false);
+
+    const horizontal =
+      Math.abs(dx) > Math.abs(dy) * 1.2;
+    const shouldMove =
+      horizontal && Math.abs(dx) > 48;
+
+    if (!shouldMove) {
+      setMonthAnimating(true);
+      setMonthDrag(0);
+      monthTimer.current = setTimeout(
+        () => setMonthAnimating(false),
+        220,
+      );
+      return;
+    }
+
+    const direction = dx < 0 ? 1 : -1;
+    ignoreDayClick.current = true;
+    setMonthAnimating(true);
+    setMonthDrag(dx < 0 ? -150 : 150);
+
+    monthTimer.current = setTimeout(() => {
+      const next = shiftMonth(
+        monthCursor,
+        direction,
+      );
+      setMonthCursor(next);
+      setSelectedDate(dayKey(next));
+
+      setMonthDrag(direction > 0 ? 55 : -55);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setMonthDrag(0);
+        });
+      });
+
+      monthTimer.current = setTimeout(() => {
+        setMonthAnimating(false);
+        ignoreDayClick.current = false;
+      }, 240);
+    }, 135);
+  }
+
+  function cancelMonthSwipe() {
+    monthOrigin.current = null;
+    setMonthDragging(false);
+    setMonthAnimating(true);
+    setMonthDrag(0);
+
+    monthTimer.current = setTimeout(
+      () => setMonthAnimating(false),
+      220,
+    );
+  }
+
   function returnToToday() {
     setMonthCursor(monthStart(today));
     setSelectedDate(today);
@@ -266,67 +375,70 @@ export default function CalendarView({
         </button>
       </div>
 
-      <div className="calendar-month">
-        <div className="calendar-month-bar">
-          <button
-            type="button"
-            aria-label="Previous month"
-            onClick={() => moveMonth(-1)}
-          >
-            ←
-          </button>
-          <strong>{monthLabel(monthCursor)}</strong>
-          <button
-            type="button"
-            aria-label="Next month"
-            onClick={() => moveMonth(1)}
-          >
-            →
-          </button>
-        </div>
+      <div
+        className={`calendar-month ${
+          monthDragging ? "is-month-dragging" : ""
+        } ${monthAnimating ? "is-month-animating" : ""}`}
+        onPointerDown={beginMonthSwipe}
+        onPointerMove={moveMonthSwipe}
+        onPointerUp={finishMonthSwipe}
+        onPointerCancel={cancelMonthSwipe}
+        onLostPointerCapture={cancelMonthSwipe}
+      >
+        <div
+          className="calendar-month-sheet"
+          style={{ "--month-drag": `${monthDrag}px` }}
+        >
+          <div className="calendar-month-bar">
+            <strong>{monthLabel(monthCursor)}</strong>
+          </div>
 
-        <div className="calendar-weekdays" aria-hidden="true">
-          {weekdays.map((weekday) => (
-            <span key={weekday}>{weekday}</span>
-          ))}
-        </div>
+          <div className="calendar-weekdays" aria-hidden="true">
+            {weekdays.map((weekday) => (
+              <span key={weekday}>{weekday}</span>
+            ))}
+          </div>
 
-        <div className="calendar-grid">
-          {cells.map((value) => {
-            const date = dayKey(value);
-            const state = stateFor(date);
-            const count = participatingCount(date);
-            const inMonth =
-              value.getMonth() === monthCursor.getMonth();
-            const selected = date === selectedDate;
+          <div className="calendar-grid">
+            {cells.map((value) => {
+              const date = dayKey(value);
+              const state = stateFor(date);
+              const count = participatingCount(date);
+              const inMonth =
+                value.getMonth() === monthCursor.getMonth();
+              const selected = date === selectedDate;
 
-            const markerKind =
-              state === "future"
-                ? "future"
-                : state === "today"
-                  ? "today"
-                  : state === "past-closed"
-                    ? "past"
-                    : state;
+              const markerKind =
+                state === "future"
+                  ? "future"
+                  : state === "today"
+                    ? "today"
+                    : state === "past-closed"
+                      ? "past"
+                      : state;
 
-            return (
-              <button
-                type="button"
-                key={date}
-                className={`calendar-day ${
-                  inMonth ? "" : "outside-month"
-                } ${selected ? "selected-day" : ""}`}
-                aria-label={`${dateLabel(date)}, ${count} cards`}
-                aria-pressed={selected}
-                onClick={() => selectDay(date)}
-              >
-                <span className="calendar-day-number">
-                  {value.getDate()}
-                </span>
-                <Marker kind={markerKind} count={count} />
-              </button>
-            );
-          })}
+              return (
+                <button
+                  type="button"
+                  key={date}
+                  className={`calendar-day ${
+                    inMonth ? "" : "outside-month"
+                  } ${selected ? "selected-day" : ""}`}
+                  aria-label={`${dateLabel(date)}, ${count} cards`}
+                  aria-pressed={selected}
+                  onClick={() => {
+                    if (ignoreDayClick.current) return;
+                    selectDay(date);
+                  }}
+                >
+                  <span className="calendar-day-number">
+                    {value.getDate()}
+                  </span>
+                  <Marker kind={markerKind} count={count} />
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
