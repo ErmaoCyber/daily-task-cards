@@ -20,10 +20,10 @@ import {
 import "./style.css";
 
 const actions = {
-  done: { arrow: "→", feedback: "DONE" },
-  tomorrow: { arrow: "←", feedback: "TOMORROW" },
-  notnow: { arrow: "↑", feedback: "NOT NOW" },
-  letgo: { arrow: "↓", feedback: "LET GO" },
+  done: { arrow: "→", feedback: "Done" },
+  tomorrow: { arrow: "←", feedback: "Tomorrow" },
+  notnow: { arrow: "↑", feedback: "Not now" },
+  letgo: { arrow: "↓", feedback: "Let go" },
 };
 
 function NavIcon({ type }) {
@@ -219,20 +219,27 @@ function TodayDeck({
             <div className="deck-back first-back" />
           )}
 
-          {intent && (
-            <div
-              className={`deck-gesture-feedback feedback-${intent}`}
-              style={{ "--gesture-strength": strength }}
-              aria-hidden="true"
-            >
-              <span className="deck-feedback-icon">
-                {intent === "done"
-                  ? "✓"
-                  : actions[intent].arrow}
+          <div
+            className={`deck-gesture-feedback ${
+              intent ? "is-visible" : ""
+            }`}
+            style={{ "--gesture-strength": intent ? strength : 0 }}
+            aria-hidden="true"
+          >
+            {intent && (
+              <span
+                className="deck-feedback-content"
+                key={intent}
+              >
+                <span className="deck-feedback-icon">
+                  {intent === "done"
+                    ? "✓"
+                    : actions[intent].arrow}
+                </span>
+                <strong>{actions[intent].feedback}</strong>
               </span>
-              <strong>{actions[intent].feedback}</strong>
-            </div>
-          )}
+            )}
+          </div>
 
           <article
             key={card.id}
