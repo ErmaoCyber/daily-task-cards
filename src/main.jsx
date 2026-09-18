@@ -186,7 +186,7 @@ function TodayDeck({
             className="deck-today-link"
             onClick={onOverview}
           >
-            TODAY <span>↗</span>
+            TODAY
           </button>
         )}
 
@@ -302,20 +302,34 @@ function TodayDeck({
             onPointerCancel={cancel}
             onLostPointerCapture={cancel}
           >
-            <div className="card-content">
-              <span
-                className={`card-time ${
-                  past ? "time-past" : ""
-                }`}
-              >
-                {card.time || "Anytime"}
-              </span>
-              <h2>{card.title}</h2>
-              {card.repeat && (
-                <span className="card-repeat">
-                  {repeatLabel(card.repeat)}
+            <div className="card-content card-content-v2">
+              <div className="card-meta-row">
+                <span
+                  className={`card-time ${
+                    past ? "time-past" : ""
+                  }`}
+                >
+                  {card.time || "Anytime"}
                 </span>
-              )}
+                {card.repeat && (
+                  <span className="card-repeat">
+                    {repeatLabel(card.repeat)}
+                  </span>
+                )}
+              </div>
+
+              <h2>{card.title}</h2>
+
+              <div className="card-support">
+                <span className="card-support-line" />
+                <span>
+                  {card.repeat
+                    ? "Recurring card"
+                    : card.time
+                      ? "Scheduled today"
+                      : "No fixed time"}
+                </span>
+              </div>
             </div>
 
             {showCoach && !finalizing && (
