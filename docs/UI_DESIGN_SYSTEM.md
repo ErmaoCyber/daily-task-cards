@@ -689,6 +689,40 @@ Do not fill empty space by stretching cards or typography.
 
 ---
 
+## 14.1 Past open day resolution
+
+A historical day that was never closed must not become a dead read-only state.
+
+Calendar state:
+
+```
+Past + OPEN
+→ Resolve Day
+→ Past + CLOSED
+```
+
+Historical resolution is intentionally different from closing Today.
+
+Because "Tomorrow" from an old date may already be in the past, unresolved Cards use:
+
+- **Done** — confirm it was completed on that historical day
+- **Bring to Today** — keep it actionable now
+- **Let go** — consciously stop carrying it
+
+Rules:
+
+- resolving an old day does not reopen the whole historical day
+- already recorded historical outcomes are not edited
+- only unresolved Cards are processed
+- Not now is unavailable
+- when the final unresolved Card is processed, a Day Card is created automatically
+- Calendar changes the day from open to closed
+- a Card brought forward becomes actionable Today, while preserving where it came from conceptually
+
+The purpose is to repair an unfinished historical boundary without rewriting later history.
+
+---
+
 ## 15. Responsive behaviour
 
 Responsive design means preserving hierarchy, not simply shrinking everything.
