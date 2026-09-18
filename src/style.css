@@ -6909,3 +6909,57 @@ main {
     padding: 10px 0;
   }
 }
+
+
+/* Closed Day header navigation */
+
+.closed-heading-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 18px;
+}
+
+.closed-heading-copy {
+  min-width: 0;
+}
+
+.closed-heading-copy > p {
+  margin: 0;
+  color: #939b89;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.closed-calendar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 2px;
+  padding: 9px 11px;
+  border-radius: 999px;
+  background: #eef1e8;
+  color: #5f705d;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.closed-calendar-link > span:last-child {
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .closed-heading-row {
+    gap: 12px;
+  }
+
+  .closed-calendar-link {
+    margin-top: 0;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .closed-heading-copy > p {
+    font-size: 13px;
+  }
+}
