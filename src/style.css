@@ -1671,3 +1671,321 @@ button.overview-mini:hover {
     width: 100px;
   }
 }
+
+
+/* Deck browser + live status refinement */
+
+/* The Focus view teaches gestures once, then gets out of the way. */
+.focus-caption {
+  text-align: center;
+  margin-top: 26px;
+  font-size: 11px;
+  color: #939b89;
+}
+
+.gesture-coach {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: inherit;
+  pointer-events: none;
+  color: #dfe7d2;
+  background: color-mix(in srgb, #2d4537 92%, transparent);
+  animation: gesture-coach-in 320ms ease both;
+}
+
+.gesture-coach span {
+  position: absolute;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.coach-up {
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.coach-down {
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.coach-left {
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.coach-right {
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@keyframes gesture-coach-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Live health status belongs to Today header, not Overview. */
+.live-status {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  color: #354b3a;
+}
+
+.live-status-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.live-status-item > div {
+  display: grid;
+  gap: 4px;
+}
+
+.live-status-item span:not(.moon) {
+  font-size: 9px;
+  letter-spacing: 0.7px;
+  color: #92998a;
+}
+
+.live-status-item strong {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.live-status-divider {
+  width: 1px;
+  height: 29px;
+  background: #e0e4da;
+}
+
+.live-status .moon {
+  font-size: 27px;
+  line-height: 1;
+  color: #87937a;
+}
+
+/* Overview is the same Today Deck in a browsable state. */
+.today-overview {
+  max-width: 420px;
+}
+
+.still-heading {
+  margin-bottom: 13px;
+}
+
+.overview-deck {
+  --browse-drag: 0px;
+  position: relative;
+  outline: none;
+  touch-action: none;
+  user-select: none;
+  margin: 3px -8px 29px;
+}
+
+.overview-deck:focus-visible {
+  outline: 2px solid #93a481;
+  outline-offset: 8px;
+  border-radius: 18px;
+}
+
+.overview-deck-stack {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px 4px;
+  transform: translateY(calc(var(--browse-drag) * 0.12));
+  transition: transform 170ms ease;
+}
+
+.overview-deck-card {
+  position: relative;
+  z-index: calc(2 + var(--card-index));
+  display: grid;
+  align-content: center;
+  width: 100%;
+  min-height: 76px;
+  margin-top: -11px;
+  padding: 16px 22px;
+  text-align: left;
+  border-radius: 16px;
+  background: #e5eadf;
+  color: #435647;
+  box-shadow: 0 6px 18px -18px #25382d66;
+  transition:
+    min-height 260ms cubic-bezier(0.22, 0.8, 0.25, 1),
+    transform 260ms cubic-bezier(0.22, 0.8, 0.25, 1),
+    background 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease,
+    opacity 220ms ease;
+}
+
+.overview-deck-card:first-child {
+  margin-top: 0;
+}
+
+.overview-deck-card:nth-child(3n + 2) {
+  background: #dce4d6;
+}
+
+.overview-deck-card:nth-child(3n) {
+  background: #edf0e7;
+}
+
+.overview-card-time {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 9px;
+  color: #7e8d77;
+}
+
+.overview-deck-card strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.25px;
+}
+
+.overview-deck-card small {
+  display: block;
+  margin-top: 6px;
+  font-size: 9px;
+  color: #84917c;
+}
+
+.overview-deck-card.is-selected {
+  z-index: 40;
+  min-height: 126px;
+  transform: translateX(8px) scale(1.018);
+  background: #2d4537;
+  color: #f5f4e9;
+  box-shadow: 0 18px 34px -25px #22352a99;
+}
+
+.overview-deck-card.is-selected .overview-card-time,
+.overview-deck-card.is-selected small {
+  color: #bdcbb5;
+}
+
+.overview-deck-card.is-selected strong {
+  font-size: 23px;
+  letter-spacing: -0.55px;
+}
+
+.overview-deck-card:hover:not(.is-selected) {
+  transform: translateX(3px);
+}
+
+.overview-deck-hint {
+  margin: 13px 0 0;
+  text-align: center;
+  font-size: 9px;
+  color: #9aa290;
+}
+
+.overview-deck.is-entering-focus
+  .overview-deck-card:not(.is-entering-card) {
+  opacity: 0;
+  transform: scale(0.97);
+}
+
+.overview-deck-card.is-entering-card {
+  transform: translateY(-8px) scale(1.045);
+  box-shadow: 0 24px 45px -28px #22352abb;
+}
+
+.overview-folds {
+  margin-top: 31px;
+}
+
+.day-actions {
+  margin-top: 34px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e5dc;
+}
+
+/* The old separate pull-handle and duplicated Overview health block are retired. */
+.deck-handle-area,
+.overview-day-facts {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .page-heading {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .heading-tools {
+    margin-left: auto;
+    gap: 8px;
+  }
+
+  .live-status {
+    gap: 9px;
+  }
+
+  .live-status-divider {
+    height: 26px;
+  }
+
+  .live-status .moon {
+    font-size: 21px;
+  }
+
+  .live-status-item {
+    gap: 5px;
+  }
+
+  .live-status-item span:not(.moon) {
+    font-size: 7px;
+    letter-spacing: 0.4px;
+  }
+
+  .live-status-item strong {
+    font-size: 9px;
+  }
+
+  .steps-status strong {
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .overview-deck {
+    margin-left: -4px;
+    margin-right: -4px;
+  }
+
+  .overview-deck-card {
+    min-height: 70px;
+    padding: 14px 18px;
+  }
+
+  .overview-deck-card.is-selected {
+    min-height: 116px;
+    transform: translateX(5px) scale(1.012);
+  }
+
+  .overview-deck-card.is-selected strong {
+    font-size: 21px;
+  }
+
+  .focus-caption {
+    margin-top: 22px;
+  }
+}
