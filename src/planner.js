@@ -19,7 +19,7 @@ export function gesture({ x, y }, threshold = 65) {
   if (Math.abs(x) > threshold && Math.abs(x) > Math.abs(y) * 1.4)
     return x > 0 ? "done" : "tomorrow";
   if (Math.abs(y) > threshold && Math.abs(y) > Math.abs(x) * 1.4)
-    return y > 0 ? "deleted" : "notnow";
+    return y > 0 ? "letgo" : "notnow";
   return null;
 }
 export function sortCards(cards, now) {
@@ -42,7 +42,7 @@ export function sortCards(cards, now) {
 export function rollToDay(cards, day) {
   return cards
     .map((card) => {
-      if (card.scheduledDate >= day || card.status === "deleted") return card;
+      if (card.scheduledDate >= day || card.status === "letgo") return card;
       if (card.repeat) {
         const interval =
           card.repeat.every * (card.repeat.unit === "weeks" ? 7 : 1);
