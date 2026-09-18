@@ -5014,3 +5014,129 @@ main {
     color: #354b3a;
   }
 }
+
+
+/* Primary nav icon convergence */
+
+.primary-nav button {
+  gap: 7px;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 20px;
+}
+
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-icon .nav-icon-core {
+  fill: currentColor;
+  stroke: none;
+}
+
+.nav-label {
+  display: inline-block;
+  line-height: 1;
+}
+
+.primary-nav button {
+  color: #8a9484;
+}
+
+.primary-nav button.active {
+  color: #354b3a;
+}
+
+.primary-nav .nav-today {
+  background: transparent;
+  color: #66765f;
+  box-shadow: none;
+}
+
+.primary-nav .nav-today.active {
+  background: #2d4537;
+  color: #f5f4e9;
+  box-shadow: 0 8px 22px #22352a24;
+}
+
+@media (min-width: 601px) {
+  .primary-nav .nav-today {
+    background: transparent;
+    color: #66765f;
+  }
+
+  .primary-nav .nav-today.active {
+    background: #2d4537;
+    color: #f5f4e9;
+  }
+}
+
+@media (max-width: 600px) {
+  footer .primary-nav {
+    height: 60px;
+    padding: 5px;
+    gap: 3px;
+  }
+
+  footer .primary-nav button {
+    height: 48px;
+    padding: 7px 8px;
+    gap: 6px;
+    font-size: 11px;
+    border-radius: 24px;
+  }
+
+  footer .primary-nav .nav-today {
+    height: 50px;
+    margin-top: 0;
+    background: transparent;
+    color: #66765f;
+    box-shadow: none;
+  }
+
+  footer .primary-nav .nav-today.active {
+    height: 50px;
+    margin-top: -4px;
+    background: #2d4537;
+    color: #f5f4e9;
+    box-shadow: 0 8px 20px #22352a24;
+  }
+
+  footer .primary-nav button.active:not(.nav-today) {
+    background: #f8f9f3;
+    color: #354b3a;
+    box-shadow: 0 2px 6px #26382d0d;
+  }
+
+  footer .primary-nav button:not(.active) {
+    background: transparent;
+  }
+
+  .nav-icon,
+  .nav-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .nav-icon {
+    flex-basis: 19px;
+  }
+
+  footer .primary-nav .nav-today .nav-icon,
+  footer .primary-nav .nav-today .nav-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
