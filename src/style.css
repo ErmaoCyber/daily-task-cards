@@ -6424,7 +6424,7 @@ main {
   transition: transform 180ms ease;
 }
 
-.me-detail-open.is-edge-swiping > .me-detail {
+.me-detail-open.is-swipe-backing > .me-detail {
   transition: none;
 }
 
