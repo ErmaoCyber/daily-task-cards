@@ -1041,6 +1041,19 @@ Do not hide all activity detail behind another interaction on this screen. The u
 
 The page may scroll when there are many Cards. Preserving meaningful information is more important than forcing the result into a single viewport.
 
+### Closed Day navigation placement
+
+`View in Calendar` is a page-level navigation action, not the final item in the activity list.
+
+When the Closed Day contains activity details:
+
+- keep the Calendar action visible in the first screenful
+- place it in the title/header composition as a quiet secondary action
+- do not require the user to scroll through all outcome rows before discovering it
+- do not duplicate the same action at both top and bottom unless the page later becomes substantially longer
+
+The action should remain visually secondary to the closed state and date, but clearly discoverable.
+
 ---
 
 ## 15. Responsive behaviour
