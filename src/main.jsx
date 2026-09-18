@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import AddCard from "./AddCard";
-import { CloseDay, ClosedDay, HistoryView } from "./DayFlow";
+import { ClosedDay, HistoryView } from "./DayFlow";
 import {
   gesture,
   localDate,
@@ -47,7 +47,15 @@ const initialHistory = [
   },
 ];
 
-function TodayDeck({ cards, now, onAction, onEdit, onOverview, wrapUp = false, onExitWrapUp }) {
+function TodayDeck({
+  cards,
+  now,
+  onAction,
+  onEdit,
+  onOverview,
+  finalizing = false,
+  onExitFinalizing,
+}) {
   const [drag, setDrag] = useState({ x: 0, y: 0 });
   const [leaving, setLeaving] = useState(null);
   const origin = useRef(null);
@@ -57,12 +65,19 @@ function TodayDeck({ cards, now, onAction, onEdit, onOverview, wrapUp = false, o
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const rawIntent = leaving || gesture(drag, 12);
-  const intent = wrapUp && rawIntent === "notnow" ? null : rawIntent;
+  const intent = finalizing && rawIntent === "notnow" ? null : rawIntent;
   const strength = leaving
     ? 1
-    : Math.min(1, Math.max(0, (Math.max(Math.abs(drag.x), Math.abs(drag.y)) - 12) / 90));
+    : Math.min(
+        1,
+        Math.max(
+          0,
+          (Math.max(Math.abs(drag.x), Math.abs(drag.y)) - 12) / 90,
+        ),
+      );
 
-  const drop = intent === "letgo" ? Math.min(Math.max(drag.y, 0) / 220, 1) : 0;
+  const drop =
+    intent === "letgo" ? Math.min(Math.max(drag.y, 0) / 220, 1) : 0;
 
   const past =
     card.shortTime &&
@@ -70,7 +85,7 @@ function TodayDeck({ cards, now, onAction, onEdit, onOverview, wrapUp = false, o
       `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
   function commit(action) {
-    if (leaving || (wrapUp && action === "notnow")) return;
+    if (leaving || (finalizing && action === "notnow")) return;
     setLeaving(action);
     timer.current = setTimeout(() => {
       onAction(card.id, action);
@@ -88,38 +103,56 @@ function TodayDeck({ cards, now, onAction, onEdit, onOverview, wrapUp = false, o
   function release(event) {
     if (origin.current?.id !== event.pointerId) return;
     const start = origin.current;
-    const offset = { x: event.clientX - start.x, y: event.clientY - start.y };
+    const offset = {
+      x: event.clientX - start.x,
+      y: event.clientY - start.y,
+    };
     origin.current = null;
     const action = gesture(offset);
 
-    if (action && !(wrapUp && action === "notnow")) commit(action);
-    else {
+    if (action && !(finalizing && action === "notnow")) {
+      commit(action);
+    } else {
       setDrag({ x: 0, y: 0 });
-      if (start.travel < 8 && Math.hypot(offset.x, offset.y) < 8) onEdit(card);
+      if (start.travel < 8 && Math.hypot(offset.x, offset.y) < 8) {
+        onEdit(card);
+      }
     }
   }
 
   const transform = leaving
-    ? `translate(${leaving === "done" ? 460 : leaving === "tomorrow" ? -460 : 0}px, ${leaving === "letgo" ? 460 : leaving === "notnow" ? -460 : 0}px) rotate(${leaving === "done" ? 18 : leaving === "tomorrow" ? -18 : 0}deg) scale(${leaving === "letgo" ? 0.94 : 1})`
-    : `translate(${drag.x}px, ${drag.y}px) rotate(${drag.x / 24}deg) scale(${1 - drop * 0.04})`;
+    ? `translate(${
+        leaving === "done" ? 460 : leaving === "tomorrow" ? -460 : 0
+      }px, ${
+        leaving === "letgo" ? 460 : leaving === "notnow" ? -460 : 0
+      }px) rotate(${
+        leaving === "done" ? 18 : leaving === "tomorrow" ? -18 : 0
+      }deg) scale(${leaving === "letgo" ? 0.94 : 1})`
+    : `translate(${drag.x}px, ${drag.y}px) rotate(${
+        drag.x / 24
+      }deg) scale(${1 - drop * 0.04})`;
 
   return (
-    <section className={`focus-view deck-mode ${wrapUp ? "wrap-up-mode" : ""}`}>
+    <section className={`focus-view deck-mode ${finalizing ? "closing-mode" : ""}`}>
       <div className="deck-heading">
-        {wrapUp ? (
-          <button className="deck-today-link" onClick={onExitWrapUp}>← BACK TO TODAY</button>
+        {finalizing ? (
+          <button className="deck-today-link" onClick={onExitFinalizing}>
+            ← BACK TO TODAY
+          </button>
         ) : (
-          <button className="deck-today-link" onClick={onOverview}>TODAY <span>↗</span></button>
+          <button className="deck-today-link" onClick={onOverview}>
+            TODAY <span>↗</span>
+          </button>
         )}
         <span className="deck-count">
           {cards.length - 1} {cards.length === 2 ? "card" : "cards"} left
         </span>
       </div>
 
-      {wrapUp && (
-        <div className="wrap-up-note">
-          <span>WRAP UP</span>
-          <p>One last decision for each card still open today.</p>
+      {finalizing && (
+        <div className="closing-note">
+          <span>CLOSING TODAY</span>
+          <p>Give each open card a final place.</p>
         </div>
       )}
 
@@ -129,27 +162,53 @@ function TodayDeck({ cards, now, onAction, onEdit, onOverview, wrapUp = false, o
           {cards.length > 1 && <div className="deck-back first-back" />}
           <article
             key={card.id}
-            className={`focus-card ${leaving ? "leaving" : ""} ${origin.current ? "dragging" : ""}`}
-            style={{ transform, opacity: leaving ? 0 : 1 - drop * 0.25 }}
+            className={`focus-card ${leaving ? "leaving" : ""} ${
+              origin.current ? "dragging" : ""
+            }`}
+            style={{
+              transform,
+              opacity: leaving ? 0 : 1 - drop * 0.25,
+            }}
             role="button"
             tabIndex={leaving ? -1 : 0}
             aria-label={`Edit ${card.title}`}
-            onKeyDown={(e) => {
-              if (!leaving && (e.key === "Enter" || e.key === " ")) {
-                e.preventDefault();
+            onKeyDown={(event) => {
+              if (
+                !leaving &&
+                (event.key === "Enter" || event.key === " ")
+              ) {
+                event.preventDefault();
                 onEdit(card);
               }
             }}
-            onPointerDown={(e) => {
-              if (leaving || origin.current || !e.isPrimary || e.button !== 0) return;
-              origin.current = { id: e.pointerId, x: e.clientX, y: e.clientY, travel: 0 };
-              e.currentTarget.setPointerCapture(e.pointerId);
+            onPointerDown={(event) => {
+              if (
+                leaving ||
+                origin.current ||
+                !event.isPrimary ||
+                event.button !== 0
+              ) {
+                return;
+              }
+              origin.current = {
+                id: event.pointerId,
+                x: event.clientX,
+                y: event.clientY,
+                travel: 0,
+              };
+              event.currentTarget.setPointerCapture(event.pointerId);
             }}
-            onPointerMove={(e) => {
+            onPointerMove={(event) => {
               const start = origin.current;
-              if (start?.id !== e.pointerId) return;
-              const offset = { x: e.clientX - start.x, y: e.clientY - start.y };
-              start.travel = Math.max(start.travel, Math.hypot(offset.x, offset.y));
+              if (start?.id !== event.pointerId) return;
+              const offset = {
+                x: event.clientX - start.x,
+                y: event.clientY - start.y,
+              };
+              start.travel = Math.max(
+                start.travel,
+                Math.hypot(offset.x, offset.y),
+              );
               setDrag(offset);
             }}
             onPointerUp={release}
@@ -166,34 +225,55 @@ function TodayDeck({ cards, now, onAction, onEdit, onOverview, wrapUp = false, o
                 <strong>{actions[intent].feedback}</strong>
               </div>
             )}
+
             <div className="card-content">
               <span className={`card-time ${past ? "time-past" : ""}`}>
                 {card.time || "Anytime"}
               </span>
               <h2>{card.title}</h2>
-              {card.repeat && <span className="card-repeat">{repeatLabel(card.repeat)}</span>}
+              {card.repeat && (
+                <span className="card-repeat">
+                  {repeatLabel(card.repeat)}
+                </span>
+              )}
             </div>
           </article>
         </div>
       </div>
 
       <div className="gesture-caption">
-        {wrapUp ? "Finish the day, one card at a time." : "One card at a time."}
+        {finalizing
+          ? "One final decision for each card."
+          : "One card at a time."}
       </div>
+
       <div className="gesture-legend" aria-label="Swipe directions">
-        {!wrapUp && <span className="hint-up">↑ Not now</span>}
+        {!finalizing && <span className="hint-up">↑ Not now</span>}
         <span>← Tomorrow</span>
         <span>→ Done</span>
         <span className="hint-down">↓ Let Go</span>
       </div>
+
       <p className="drag-note">
-        {wrapUp ? "Not now is paused while wrapping up." : "Swipe to decide · Tap to edit"}
+        {finalizing
+          ? "Not now ends when you choose Close Today."
+          : "Swipe to decide · Tap to edit"}
       </p>
     </section>
   );
 }
 
-function TodayOverview({ open, done, tomorrow, letgo, onEnter, onWrapUp, onCloseDay }) {
+function TodayOverview({
+  open,
+  done,
+  tomorrow,
+  letgo,
+  sleep,
+  steps,
+  onStepsChange,
+  onEnter,
+  onCloseToday,
+}) {
   const [pull, setPull] = useState(0);
   const [entering, setEntering] = useState(false);
   const origin = useRef(null);
@@ -209,7 +289,11 @@ function TodayOverview({ open, done, tomorrow, letgo, onEnter, onWrapUp, onClose
 
   const mini = (card, active) =>
     active ? (
-      <button className="overview-mini" key={card.id} onClick={() => enter(card.id)}>
+      <button
+        className="overview-mini"
+        key={card.id}
+        onClick={() => enter(card.id)}
+      >
         <span>{card.time || "Anytime"}</span>
         <h3>{card.title}</h3>
         {card.repeat && <small>{repeatLabel(card.repeat)}</small>}
@@ -224,42 +308,74 @@ function TodayOverview({ open, done, tomorrow, letgo, onEnter, onWrapUp, onClose
   return (
     <section
       className={`today-overview ${entering ? "entering-deck" : ""}`}
-      style={{ "--pull": `${pull}px`, "--retreat": Math.min(pull / 400, 0.35) }}
+      style={{
+        "--pull": `${pull}px`,
+        "--retreat": Math.min(pull / 400, 0.35),
+      }}
     >
       <div className="overview-content">
         <h2>Today</h2>
         <p className="open-count">
-          {open.length ? `${open.length} still open` : "Everything has a place for today."}
+          {open.length
+            ? `${open.length} still open`
+            : "Everything has a place for today."}
         </p>
 
         <div className="still-heading eyebrow">STILL TODAY</div>
-        {open.length ? open.map((card) => mini(card, true)) : <p className="nothing-open">Today is clear.</p>}
+        {open.length ? (
+          open.map((card) => mini(card, true))
+        ) : (
+          <p className="nothing-open">Today is clear.</p>
+        )}
 
         <div className="overview-folds">
           <details>
-            <summary>Completed <span>{done.length}</span></summary>
+            <summary>
+              Completed <span>{done.length}</span>
+            </summary>
             {done.map((card) => mini(card, false))}
           </details>
           <details>
-            <summary>Tomorrow <span>{tomorrow.length}</span></summary>
+            <summary>
+              Tomorrow <span>{tomorrow.length}</span>
+            </summary>
             {tomorrow.map((card) => mini(card, false))}
           </details>
           <details>
-            <summary>Let Go <span>{letgo.length}</span></summary>
+            <summary>
+              Let Go <span>{letgo.length}</span>
+            </summary>
             {letgo.map((card) => mini(card, false))}
           </details>
         </div>
 
+        <div className="overview-day-facts">
+          <div>
+            <span>Last night</span>
+            <strong>{sleep}</strong>
+          </div>
+          <label className="overview-steps-field">
+            <span>Steps</span>
+            <input
+              type="number"
+              min="0"
+              inputMode="numeric"
+              value={steps}
+              onChange={(event) => onStepsChange(event.target.value)}
+              aria-label="Steps today"
+            />
+          </label>
+        </div>
+
         <div className="day-actions">
-          {open.length ? (
-            <button className="wrap-up-link" onClick={onWrapUp}>
-              Wrap up today <span>→</span>
-            </button>
-          ) : (
-            <button className="primary" onClick={onCloseDay}>
-              Close today <span>→</span>
-            </button>
+          {open.length > 0 && (
+            <p className="close-intent-note">
+              Closing today means each open card needs a final decision.
+            </p>
           )}
+          <button className="primary" onClick={onCloseToday}>
+            Close Today <span>→</span>
+          </button>
         </div>
       </div>
 
@@ -269,28 +385,54 @@ function TodayOverview({ open, done, tomorrow, letgo, onEnter, onWrapUp, onClose
           <button
             className="deck-handle"
             aria-label="Pull up to enter Today Deck"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
                 enter();
               }
             }}
-            onPointerDown={(e) => {
-              if (!e.isPrimary || e.button !== 0 || entering) return;
-              origin.current = { x: e.clientX, y: e.clientY, id: e.pointerId };
-              e.currentTarget.setPointerCapture(e.pointerId);
+            onPointerDown={(event) => {
+              if (
+                !event.isPrimary ||
+                event.button !== 0 ||
+                entering
+              ) {
+                return;
+              }
+              origin.current = {
+                x: event.clientX,
+                y: event.clientY,
+                id: event.pointerId,
+              };
+              event.currentTarget.setPointerCapture(event.pointerId);
             }}
-            onPointerMove={(e) => {
-              if (origin.current?.id === e.pointerId) {
-                setPull(Math.max(0, Math.min(180, origin.current.y - e.clientY)));
+            onPointerMove={(event) => {
+              if (origin.current?.id === event.pointerId) {
+                setPull(
+                  Math.max(
+                    0,
+                    Math.min(
+                      180,
+                      origin.current.y - event.clientY,
+                    ),
+                  ),
+                );
               }
             }}
-            onPointerUp={(e) => {
+            onPointerUp={(event) => {
               const start = origin.current;
-              if (start?.id !== e.pointerId) return;
+              if (start?.id !== event.pointerId) return;
               origin.current = null;
-              if (gesture({ x: e.clientX - start.x, y: e.clientY - start.y }) === "notnow") enter();
-              else setPull(0);
+              if (
+                gesture({
+                  x: event.clientX - start.x,
+                  y: event.clientY - start.y,
+                }) === "notnow"
+              ) {
+                enter();
+              } else {
+                setPull(0);
+              }
             }}
             onPointerCancel={() => {
               origin.current = null;
@@ -312,7 +454,10 @@ function App() {
   const sleepValue = "7h 12m";
 
   const [cards, setCards] = useState(() =>
-    initialCards.map((card) => ({ ...card, scheduledDate: localDate() })),
+    initialCards.map((card) => ({
+      ...card,
+      scheduledDate: localDate(),
+    })),
   );
   const [mode, setMode] = useState("deck");
   const [page, setPage] = useState("today");
@@ -322,6 +467,7 @@ function App() {
   const [toast, setToast] = useState(null);
   const [history, setHistory] = useState(initialHistory);
   const [closedRecord, setClosedRecord] = useState(null);
+  const [steps, setSteps] = useState("8642");
 
   const nextId = useRef(5);
   const previousDay = useRef(day);
@@ -342,6 +488,7 @@ function App() {
       setSkipped([]);
       setFirstId(null);
       setClosedRecord(null);
+      setSteps("");
       setMode("deck");
       setPage("today");
       previousDay.current = day;
@@ -350,43 +497,89 @@ function App() {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(null), toast.undo ? 5000 : 1500);
+    const timer = setTimeout(
+      () => setToast(null),
+      toast.undo ? 5000 : 1500,
+    );
     return () => clearTimeout(timer);
   }, [toast]);
 
   const open = sortCards(
-    cards.filter((card) => card.scheduledDate === day && !card.status),
+    cards.filter(
+      (card) => card.scheduledDate === day && !card.status,
+    ),
     now,
   );
 
-  const round = open.filter((card) => !skipped.includes(card.id));
+  const round = open.filter(
+    (card) => !skipped.includes(card.id),
+  );
   const focused = round.find((card) => card.id === firstId);
-  const deck = focused ? [focused, ...round.filter((card) => card.id !== firstId)] : round;
+  const deck = focused
+    ? [
+        focused,
+        ...round.filter((card) => card.id !== firstId),
+      ]
+    : round;
 
   const done = cards.filter(
-    (card) => card.scheduledDate === day && card.status === "done",
+    (card) =>
+      card.scheduledDate === day && card.status === "done",
   );
 
   const tomorrow = cards.filter(
-    (card) => card.scheduledDate === plusDays(day, 1) && card.status === "tomorrow",
+    (card) =>
+      card.scheduledDate === plusDays(day, 1) &&
+      card.status === "tomorrow",
   );
 
   const letgo = cards.filter(
-    (card) => card.scheduledDate === day && card.status === "letgo",
+    (card) =>
+      card.scheduledDate === day && card.status === "letgo",
+  );
+
+  const movedTomorrow = tomorrow.filter(
+    (card) => card.movedFrom === day,
   );
 
   useEffect(() => {
-    if (page !== "today" || editor || closedRecord) return;
-    if (mode === "deck" && deck.length === 0) setMode("overview");
-    if (mode === "wrapup" && open.length === 0) setMode("close");
-  }, [page, mode, deck.length, open.length, editor, closedRecord]);
+    if (
+      page !== "today" ||
+      editor ||
+      closedRecord
+    ) {
+      return;
+    }
+
+    if (mode === "deck" && deck.length === 0) {
+      setMode("overview");
+    }
+
+    if (mode === "closing" && open.length === 0) {
+      closeToday();
+    }
+  }, [
+    page,
+    mode,
+    deck.length,
+    open.length,
+    editor,
+    closedRecord,
+    done.length,
+    movedTomorrow.length,
+    letgo.length,
+  ]);
 
   function act(id, action) {
     const original = cards.find((card) => card.id === id);
     setFirstId(null);
 
     if (action === "notnow") {
-      setSkipped((previous) => previous.includes(id) ? previous : [...previous, id]);
+      setSkipped((previous) =>
+        previous.includes(id)
+          ? previous
+          : [...previous, id],
+      );
     } else {
       setCards((previous) =>
         previous.map((card) =>
@@ -413,7 +606,10 @@ function App() {
             : action === "tomorrow"
               ? "Moved to tomorrow"
               : "Done",
-      undo: action === "letgo" ? original : null,
+      undo:
+        action === "letgo" && mode !== "closing"
+          ? original
+          : null,
     });
   }
 
@@ -424,7 +620,11 @@ function App() {
     setToast(null);
     window.scrollTo({
       top: 0,
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      behavior: window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches
+        ? "instant"
+        : "smooth",
     });
   }
 
@@ -432,10 +632,17 @@ function App() {
     if (editor.card) {
       const id = editor.card.id;
       setCards((previous) =>
-        previous.map((card) => card.id === id ? { ...card, ...values } : card),
+        previous.map((card) =>
+          card.id === id
+            ? { ...card, ...values }
+            : card,
+        ),
       );
     } else {
-      const card = { ...values, id: nextId.current++ };
+      const card = {
+        ...values,
+        id: nextId.current++,
+      };
       setCards((previous) => [...previous, card]);
     }
 
@@ -449,29 +656,56 @@ function App() {
     });
   }
 
-  function closeToday(steps) {
+  function closeToday() {
+    if (closedRecord) return;
+
+    const stepValue = Number(steps);
     const record = {
       id: day,
       date: day,
       done: done.map((card) => card.title),
-      tomorrow: tomorrow
-        .filter((card) => card.movedFrom === day)
-        .map((card) => card.title),
+      tomorrow: movedTomorrow.map((card) => card.title),
       letgo: letgo.map((card) => card.title),
       sleep: sleepValue,
-      steps,
+      steps:
+        Number.isFinite(stepValue) && stepValue >= 0
+          ? Math.round(stepValue)
+          : 0,
     };
 
-    setHistory((previous) => [record, ...previous.filter((item) => item.id !== record.id)]);
+    setHistory((previous) => [
+      record,
+      ...previous.filter(
+        (item) => item.id !== record.id,
+      ),
+    ]);
     setClosedRecord(record);
     setMode("closed");
     setToast({ label: "Day closed" });
   }
 
+  function requestCloseToday() {
+    setToast(null);
+
+    if (open.length === 0) {
+      closeToday();
+      return;
+    }
+
+    setSkipped([]);
+    setFirstId(null);
+    setMode("closing");
+  }
+
   const dateLabel =
-    new Intl.DateTimeFormat("en", { weekday: "long" }).format(now) +
+    new Intl.DateTimeFormat("en", {
+      weekday: "long",
+    }).format(now) +
     " · " +
-    new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(now);
+    new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "short",
+    }).format(now);
 
   const todayContent = editor ? (
     <AddCard
@@ -482,26 +716,38 @@ function App() {
       onBack={() => setEditor(null)}
     />
   ) : closedRecord ? (
-    <ClosedDay record={closedRecord} onHistory={() => setPage("history")} />
+    <ClosedDay
+      record={closedRecord}
+      onHistory={() => setPage("history")}
+    />
   ) : (
     <>
       <div className="page-heading">
         <div>
           <span className="eyebrow">ONE DAY AT A TIME</span>
           <h1>
-            <button className="today-heading" onClick={() => setMode("overview")} aria-label="Today Overview">
+            <button
+              className="today-heading"
+              onClick={() => setMode("overview")}
+              aria-label="Today Overview"
+            >
               {dateLabel}
             </button>
           </h1>
         </div>
+
         <div className="heading-tools">
-          <div className="sleep" aria-label={`Last night ${sleepValue} sleep`}>
+          <div
+            className="sleep"
+            aria-label={`Last night ${sleepValue} sleep`}
+          >
             <span className="moon">☾</span>
             <div>
               <span>LAST NIGHT</span>
               <strong>{sleepValue}</strong>
             </div>
           </div>
+
           <button
             className="add-entry"
             aria-label="Add Card"
@@ -526,42 +772,30 @@ function App() {
           }}
           onOverview={() => setMode("overview")}
         />
-      ) : mode === "wrapup" && open.length ? (
+      ) : mode === "closing" && open.length ? (
         <TodayDeck
           cards={open}
           now={now}
-          wrapUp
+          finalizing
           onAction={act}
           onEdit={(card) => {
             setToast(null);
             setEditor({ card });
           }}
           onOverview={() => setMode("overview")}
-          onExitWrapUp={() => setMode("overview")}
-        />
-      ) : mode === "close" ? (
-        <CloseDay
-          dateLabel={dateLabel}
-          doneCount={done.length}
-          tomorrowCount={tomorrow.filter((card) => card.movedFrom === day).length}
-          letGoCount={letgo.length}
-          sleep={sleepValue}
-          onBack={() => setMode("overview")}
-          onClose={closeToday}
+          onExitFinalizing={() => setMode("overview")}
         />
       ) : (
         <TodayOverview
           open={open}
           done={done}
-          tomorrow={tomorrow.filter((card) => card.movedFrom === day)}
+          tomorrow={movedTomorrow}
           letgo={letgo}
+          sleep={sleepValue}
+          steps={steps}
+          onStepsChange={setSteps}
           onEnter={enter}
-          onWrapUp={() => {
-            setSkipped([]);
-            setFirstId(null);
-            setMode("wrapup");
-          }}
-          onCloseDay={() => setMode("close")}
+          onCloseToday={requestCloseToday}
         />
       )}
     </>
@@ -572,17 +806,22 @@ function App() {
       <header className="brand">
         <a
           href="#"
-          onClick={(e) => {
-            e.preventDefault();
+          onClick={(event) => {
+            event.preventDefault();
             setEditor(null);
             setPage("today");
-            if (!closedRecord) setMode("overview");
+            if (!closedRecord) {
+              setMode("overview");
+            }
           }}
         >
-          <span className="brand-symbol">▱</span>day by day
+          <span className="brand-symbol">▱</span>
+          day by day
           <span className="brand-dot">.</span>
         </a>
-        <span className="brand-caption">A little less. A little lighter.</span>
+        <span className="brand-caption">
+          A little less. A little lighter.
+        </span>
         <span className="edition">A DAILY PRACTICE</span>
       </header>
 
@@ -590,17 +829,26 @@ function App() {
         {page === "today" ? (
           todayContent
         ) : (
-          <HistoryView history={history} onToday={() => setPage("today")} />
+          <HistoryView
+            history={history}
+            onToday={() => setPage("today")}
+          />
         )}
       </main>
 
       <footer>
         {!editor && (
           <nav aria-label="Primary">
-            <button className={page === "today" ? "active" : ""} onClick={() => setPage("today")}>
+            <button
+              className={page === "today" ? "active" : ""}
+              onClick={() => setPage("today")}
+            >
               <span>◌</span> Today
             </button>
-            <button className={page === "history" ? "active" : ""} onClick={() => setPage("history")}>
+            <button
+              className={page === "history" ? "active" : ""}
+              onClick={() => setPage("history")}
+            >
               <span>▱</span> History
             </button>
           </nav>
@@ -617,7 +865,11 @@ function App() {
               <button
                 onClick={() => {
                   setCards((previous) =>
-                    previous.map((card) => card.id === toast.undo.id ? toast.undo : card),
+                    previous.map((card) =>
+                      card.id === toast.undo.id
+                        ? toast.undo
+                        : card,
+                    ),
                   );
                   setToast(null);
                 }}
