@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import AddCard from "./AddCard";
 import { ClosedDay } from "./DayFlow";
 import CalendarView from "./CalendarView";
+import MeView from "./MeView";
 import {
   createMockCards,
   createMockHistory,
@@ -1221,7 +1222,7 @@ function App() {
           />
         ) : page === "today" ? (
           todayContent
-        ) : (
+        ) : page === "calendar" ? (
           <CalendarView
             today={day}
             cards={cards}
@@ -1236,20 +1237,14 @@ function App() {
             onAddCard={(date) => openAddCard(date)}
             onEditCard={openEditCard}
           />
+        ) : (
+          <MeView />
         )}
       </main>
 
       <footer>
         {!editor && (
-          <nav aria-label="Primary">
-            <button
-              className={
-                page === "today" ? "active" : ""
-              }
-              onClick={() => setPage("today")}
-            >
-              <span>◌</span> Today
-            </button>
+          <nav className="primary-nav" aria-label="Primary">
             <button
               className={
                 page === "calendar" ? "active" : ""
@@ -1257,6 +1252,24 @@ function App() {
               onClick={() => setPage("calendar")}
             >
               <span>▦</span> Calendar
+            </button>
+
+            <button
+              className={`nav-today ${
+                page === "today" ? "active" : ""
+              }`}
+              onClick={() => setPage("today")}
+            >
+              <span>◉</span> Today
+            </button>
+
+            <button
+              className={
+                page === "me" ? "active" : ""
+              }
+              onClick={() => setPage("me")}
+            >
+              <span>◯</span> Me
             </button>
           </nav>
         )}
