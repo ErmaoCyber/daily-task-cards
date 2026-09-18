@@ -6059,3 +6059,120 @@ main {
     min-height: 300px;
   }
 }
+
+
+/* Deck-anchored gesture feedback */
+
+.deck-stack {
+  isolation: isolate;
+}
+
+/* Feedback belongs to the deck, not to the moving card.
+ * It stays fixed while the active card moves away.
+ */
+.deck-gesture-feedback {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgb(247 247 242 / 0.9);
+  border: 1px solid rgb(216 224 211 / 0.95);
+  color: #35503f;
+  box-shadow: 0 10px 26px rgb(35 53 43 / 0.12);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+  opacity: calc(0.18 + (var(--gesture-strength) * 0.82));
+  transform: scale(calc(0.94 + (var(--gesture-strength) * 0.06)));
+  transition:
+    opacity 80ms linear,
+    transform 80ms linear;
+}
+
+.deck-gesture-feedback strong {
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 1.05px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.deck-feedback-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* The hint sits in the space revealed by the gesture.
+ * Horizontal actions intentionally appear on the opposite exposed edge.
+ */
+.deck-gesture-feedback.feedback-done {
+  left: 14px;
+  top: 50%;
+  transform:
+    translateY(-50%)
+    scale(calc(0.94 + (var(--gesture-strength) * 0.06)));
+}
+
+.deck-gesture-feedback.feedback-tomorrow {
+  right: 14px;
+  top: 50%;
+  flex-direction: row-reverse;
+  transform:
+    translateY(-50%)
+    scale(calc(0.94 + (var(--gesture-strength) * 0.06)));
+}
+
+.deck-gesture-feedback.feedback-notnow {
+  left: 50%;
+  bottom: 14px;
+  transform:
+    translateX(-50%)
+    scale(calc(0.94 + (var(--gesture-strength) * 0.06)));
+}
+
+.deck-gesture-feedback.feedback-letgo {
+  left: 50%;
+  top: 14px;
+  transform:
+    translateX(-50%)
+    scale(calc(0.94 + (var(--gesture-strength) * 0.06)));
+}
+
+@media (max-width: 600px) {
+  .page-today .deck-gesture-feedback {
+    min-height: 40px;
+    padding: 9px 12px;
+  }
+
+  .page-today .deck-gesture-feedback.feedback-done {
+    left: 12px;
+  }
+
+  .page-today .deck-gesture-feedback.feedback-tomorrow {
+    right: 12px;
+  }
+
+  .page-today .deck-gesture-feedback.feedback-notnow {
+    bottom: 12px;
+  }
+
+  .page-today .deck-gesture-feedback.feedback-letgo {
+    top: 12px;
+  }
+
+  .page-today .deck-gesture-feedback strong {
+    font-size: 11px;
+  }
+
+  .page-today .deck-feedback-icon {
+    font-size: 17px;
+  }
+}
+
+/* Retire the previous card-attached feedback treatment. */
+.swipe-feedback {
+  display: none !important;
+}
