@@ -129,3 +129,22 @@ Mobile screens now follow one shared layout rule instead of being individually c
 - Full historical details stay inside bottom sheets rather than stretching the underlying screen.
 
 The mobile principle is: **the current primary task fits in one screen; intentional detail may scroll.**
+
+
+## Me workspace
+
+The prototype now has a three-part primary navigation:
+
+- **Calendar** — past, today, and future on one time axis
+- **Today** — the central action space and visually emphasized middle tab
+- **Me** — long-term personal context
+
+Me is currently front-end mock only and contains three prototype areas:
+
+- **Life List** — long-term things the user wants to make real
+- **Reviews** — one unified entry with Week / Month / Year ranges
+- **Health & Data** — mock sleep, steps, and a future integrations entry
+
+The Reviews screen uses one shared structure instead of separate weekly/monthly/yearly pages. Historical periods will later be browsed inside the same review experience.
+
+No backend model is implied by this prototype yet; the current goal is to validate the product structure and mobile UI first.
