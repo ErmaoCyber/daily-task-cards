@@ -3073,3 +3073,225 @@ main {
     margin-top: 8px;
   }
 }
+
+
+/* Mobile calendar fill-the-viewport refinement */
+
+@media (max-width: 600px) {
+  /* Fill available height instead of shrinking the calendar into a small card. */
+  .calendar-view {
+    min-height: calc(
+      100dvh - 92px - env(safe-area-inset-bottom)
+    );
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+
+  .calendar-heading {
+    min-height: 40px;
+    margin: 0;
+  }
+
+  .calendar-heading h1 {
+    font-size: 25px;
+    letter-spacing: -0.95px;
+  }
+
+  .calendar-today-button {
+    font-size: 11px;
+  }
+
+  .calendar-month {
+    min-height: clamp(350px, 52dvh, 430px);
+    height: 100%;
+    padding: 16px 10px 12px;
+    border-radius: 17px;
+  }
+
+  .calendar-month-sheet {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .calendar-month-bar {
+    flex: 0 0 auto;
+    margin: 0 5px 12px;
+  }
+
+  .calendar-month-bar strong {
+    font-size: 17px;
+    letter-spacing: -0.4px;
+  }
+
+  .calendar-weekdays {
+    flex: 0 0 auto;
+    margin-bottom: 4px;
+  }
+
+  .calendar-weekdays span {
+    font-size: 8px;
+    letter-spacing: 0.9px;
+  }
+
+  .calendar-grid {
+    flex: 1;
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+  }
+
+  .calendar-day {
+    height: auto;
+    min-height: 44px;
+    gap: 5px;
+    padding: 7px 1px 5px;
+    border-radius: 11px;
+  }
+
+  .calendar-day-number {
+    font-size: 11px;
+  }
+
+  .calendar-markers {
+    min-height: 7px;
+    gap: 3px;
+  }
+
+  .marker-future,
+  .marker-past {
+    width: 5px;
+    height: 5px;
+  }
+
+  .marker-today {
+    width: 9px;
+    height: 4px;
+  }
+
+  .marker-open-day {
+    width: 11px;
+    height: 2px;
+  }
+
+  .calendar-day.selected-day {
+    border-radius: 12px;
+  }
+
+  .calendar-day-panel {
+    min-height: clamp(150px, 20dvh, 185px);
+    margin: 0;
+    padding: 17px 17px 18px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .calendar-day-panel-heading {
+    margin-bottom: 12px;
+  }
+
+  .calendar-day-panel-heading .eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+
+  .calendar-day-panel-heading h2 {
+    margin-top: 4px;
+    font-size: 20px;
+  }
+
+  .calendar-outcomes {
+    gap: 6px 18px;
+    font-size: 10px;
+  }
+
+  .calendar-outcomes strong {
+    font-size: 15px;
+  }
+
+  .calendar-metrics {
+    margin-top: 13px;
+    padding-top: 11px;
+    gap: 22px;
+  }
+
+  .calendar-metrics span {
+    font-size: 9px;
+  }
+
+  .calendar-metrics strong {
+    font-size: 13px;
+  }
+
+  .calendar-primary {
+    min-height: 43px;
+    margin-top: 14px;
+    padding: 10px 15px;
+    font-size: 11px;
+  }
+
+  .calendar-planned-card {
+    min-height: 36px;
+    padding: 9px 10px;
+  }
+
+  .calendar-planned-card span {
+    font-size: 9px;
+  }
+
+  .calendar-planned-card strong {
+    font-size: 11px;
+  }
+
+  .calendar-text-action {
+    font-size: 10px;
+  }
+
+  footer {
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  footer nav button {
+    min-width: 112px;
+    padding: 10px 17px;
+    font-size: 11px;
+  }
+
+  footer nav button > span {
+    font-size: 17px;
+  }
+}
+
+/* Short phones still fit, but stay visually substantial. */
+@media (max-width: 600px) and (max-height: 720px) {
+  .calendar-view {
+    min-height: calc(
+      100dvh - 84px - env(safe-area-inset-bottom)
+    );
+    gap: 9px;
+  }
+
+  .calendar-month {
+    min-height: 315px;
+    padding-top: 13px;
+    padding-bottom: 10px;
+  }
+
+  .calendar-day {
+    min-height: 39px;
+    padding-top: 5px;
+    padding-bottom: 4px;
+  }
+
+  .calendar-day-panel {
+    min-height: 135px;
+    padding-top: 13px;
+    padding-bottom: 14px;
+  }
+
+  .calendar-primary {
+    min-height: 39px;
+    margin-top: 10px;
+  }
+}
