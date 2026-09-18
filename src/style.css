@@ -6421,10 +6421,7 @@ main {
 
 .me-detail-open > .me-detail {
   transform: translateX(calc(var(--me-back-drag, 0px) * 0.45));
-  opacity: calc(1 - (var(--me-back-drag, 0) / 720));
-  transition:
-    transform 180ms ease,
-    opacity 180ms ease;
+  transition: transform 180ms ease;
 }
 
 .me-detail-open.is-edge-swiping > .me-detail {
