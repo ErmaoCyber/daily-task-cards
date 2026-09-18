@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 const lifeItems = [
   "Build and ship my own product",
@@ -241,13 +241,94 @@ function MyData({ onBack }) {
 
 export default function MeView() {
   const [view, setView] = useState("home");
+  const [backDrag, setBackDrag] = useState(0);
+  const backOrigin = useRef(null);
+
+  function backToMe() {
+    setBackDrag(0);
+    backOrigin.current = null;
+    setView("home");
+  }
+
+  function beginBackGesture(event) {
+    if (
+      view === "home" ||
+      !event.isPrimary ||
+      event.button !== 0 ||
+      event.clientX > 28
+    ) {
+      return;
+    }
+
+    backOrigin.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function moveBackGesture(event) {
+    const start = backOrigin.current;
+    if (start?.id !== event.pointerId) return;
+
+    const dx = Math.max(0, event.clientX - start.x);
+    const dy = Math.abs(event.clientY - start.y);
+
+    if (dy > dx && dx < 14) return;
+
+    setBackDrag(Math.min(dx, 72));
+  }
+
+  function finishBackGesture(event) {
+    const start = backOrigin.current;
+    if (start?.id !== event.pointerId) return;
+
+    const dx = event.clientX - start.x;
+    const dy = Math.abs(event.clientY - start.y);
+
+    backOrigin.current = null;
+
+    if (dx > 72 && dx > dy * 1.2) {
+      backToMe();
+      return;
+    }
+
+    setBackDrag(0);
+  }
+
+  function cancelBackGesture(event) {
+    if (
+      event?.pointerId != null &&
+      backOrigin.current?.id !== event.pointerId
+    ) {
+      return;
+    }
+
+    backOrigin.current = null;
+    setBackDrag(0);
+  }
+
+  const onBack = backToMe;
+  const detailOpen = view !== "home";
 
   return (
-    <section className="me-view">
+    <section
+      className={`me-view ${
+        detailOpen ? "me-detail-open" : ""
+      } ${backDrag ? "is-edge-swiping" : ""}`}
+      style={{ "--me-back-drag": `${backDrag}px` }}
+      onPointerDown={beginBackGesture}
+      onPointerMove={moveBackGesture}
+      onPointerUp={finishBackGesture}
+      onPointerCancel={cancelBackGesture}
+      onLostPointerCapture={cancelBackGesture}
+    >
       {view === "home" && <MeHome onOpen={setView} />}
-      {view === "life" && <LifeList onBack={() => setView("home")} />}
-      {view === "reviews" && <Reviews onBack={() => setView("home")} />}
-      {view === "data" && <MyData onBack={() => setView("home")} />}
+      {view === "life" && <LifeList onBack={onBack} />}
+      {view === "reviews" && <Reviews onBack={onBack} />}
+      {view === "data" && <MyData onBack={onBack} />}
     </section>
   );
 }
