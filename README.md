@@ -24,7 +24,7 @@ The permanent gesture legend is no longer shown during normal use. A lightweight
 
 ## Today Deck
 
-Overview and Focus are now two states of the same deck.
+Overview and Focus are two states of the same deck.
 
 - Overview shows all Still Today cards as an overlapping stack.
 - Every visible card keeps its time and title readable.
@@ -32,21 +32,48 @@ Overview and Focus are now two states of the same deck.
 - Swipe vertically to move the selection.
 - Click an unselected card to select it.
 - Click the selected card to draw it into Focus.
-- The Overview deck loops in both directions, so browsing has no first/last stop.
-- The old separate bottom deck handle has been removed.
-
-Completed, Tomorrow, and Let Go stay as quiet collapsible sections below the active deck.
+- The Overview deck loops in both directions.
+- Completed, Tomorrow, and Let Go remain quiet collapsible outcome sections.
 
 ## Live status
 
-The upper-right Today header contains the current day context:
+The upper-right Today header contains:
 
 - last night's sleep
 - today's current step count
 
-Overview does not repeat those values.
+These are mock live values for now. Closing Today copies them into the Day Card as a historical snapshot.
 
-When Today is closed, the current values are copied into the Day Card as a snapshot for History.
+## Calendar
+
+Calendar replaces the old top-level History screen. It keeps past records, Today, and future plans on one time axis.
+
+The month view uses a small marker language:
+
+- **○ hollow circles** — future planned cards
+- **▭ rounded mini rectangles** — cards participating Today
+- **● soft solid circles** — cards recorded in a closed past day
+- **— short line** — a past day that was left open
+
+Marker quantity represents all cards that participated in that day, capped at three markers to show density without turning the month into a dashboard.
+
+Selecting a date keeps the month visible and updates the panel below it:
+
+- **Past closed day** — Day Card summary, sleep, steps, and optional full outcome detail.
+- **Today** — current outcome counts and an Open Today action.
+- **Future** — planned cards with direct edit and Add Card.
+- **Past open day** — a lightweight unresolved-day state.
+
+## Mock data
+
+The prototype now includes roughly six weeks of varied mock data so Calendar density and empty/full states can be judged more realistically:
+
+- closed and empty past dates
+- one intentionally unclosed past date
+- different Done / Tomorrow / Let Go combinations
+- varied sleep and step snapshots
+- sparse and busy future dates
+- future class, swimming, study, appointment, and project cards
 
 ## Close Today
 
@@ -64,14 +91,17 @@ There is no daily mood score or productivity grade.
 - No authentication
 - No persistence
 - Mock sleep and step values
-- No real notifications or external data integrations
+- Calendar data is prototype fixture data
+- No real notifications or external health integrations
 - No weekly report yet
 - No AI
 
 ## Main files
 
-- `src/main.jsx` — Today Deck, Overview, live status, gestures, and Close Today flow
-- `src/DayFlow.jsx` — Day Card and History
-- `src/AddCard.jsx` — card creation/editing
+- `src/main.jsx` — Today Deck, Overview, live status, routing, gestures, and Close Today
+- `src/CalendarView.jsx` — month Calendar and selected-day panel
+- `src/mockData.js` — six-week prototype fixture data
+- `src/DayFlow.jsx` — closed Day Card result
+- `src/AddCard.jsx` — card creation/editing, including Calendar-selected dates
 - `src/planner.js` — date, sorting, rollover, and gesture helpers
 - `src/style.css` — visual and interaction styling
