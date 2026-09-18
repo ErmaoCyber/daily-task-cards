@@ -2215,3 +2215,67 @@ button.overview-mini:hover {
     font-size: 21px;
   }
 }
+
+
+/* Circular deck boundary fix */
+
+/* Keep the browsable stack inside its own visual lane. */
+.overview-deck {
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.overview-deck-stack {
+  height: 320px;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.overview-deck-card {
+  top: 50%;
+  transform:
+    translateY(
+      calc(
+        -50% +
+        (var(--relative) * 60px) +
+        var(--browse-drag)
+      )
+    )
+    scale(calc(1 - (var(--distance) * 0.018)));
+}
+
+.overview-deck-card.is-selected {
+  transform:
+    translateY(calc(-50% + var(--browse-drag)))
+    scale(1.018);
+}
+
+.overview-deck-card.is-far {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .overview-deck-stack {
+    height: 290px;
+  }
+
+  .overview-deck-card {
+    top: 50%;
+    transform:
+      translateY(
+        calc(
+          -50% +
+          (var(--relative) * 54px) +
+          var(--browse-drag)
+        )
+      )
+      scale(calc(1 - (var(--distance) * 0.018)));
+  }
+
+  .overview-deck-card.is-selected {
+    transform:
+      translateY(calc(-50% + var(--browse-drag)))
+      scale(1.012);
+  }
+}
