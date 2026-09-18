@@ -55,10 +55,23 @@ export function ClosedDay({ record, onCalendar }) {
 
   return (
     <section className="closed">
-      <div className="clear-icon">✓</div>
-      <span className="eyebrow">DAY CLOSED</span>
-      <h2>{parts.label}</h2>
-      <p>This day is now part of your calendar.</p>
+      <div className="closed-heading-row">
+        <div className="closed-heading-copy">
+          <div className="clear-icon">✓</div>
+          <span className="eyebrow">DAY CLOSED</span>
+          <h2>{parts.label}</h2>
+          <p>This day is now part of your calendar.</p>
+        </div>
+
+        <button
+          type="button"
+          className="closed-calendar-link"
+          onClick={onCalendar}
+        >
+          <span>Calendar</span>
+          <span aria-hidden="true">↗</span>
+        </button>
+      </div>
 
       <article className="day-card-large">
         <OutcomeCounts
@@ -93,12 +106,6 @@ export function ClosedDay({ record, onCalendar }) {
         />
       </div>
 
-      <button
-        className="text-button"
-        onClick={onCalendar}
-      >
-        View in Calendar <span>→</span>
-      </button>
     </section>
   );
 }
