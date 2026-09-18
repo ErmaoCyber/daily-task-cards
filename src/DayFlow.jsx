@@ -32,6 +32,24 @@ function OutcomeCounts({ done, tomorrow, letgo }) {
   );
 }
 
+function OutcomeSection({ title, mark, items }) {
+  if (!items?.length) return null;
+
+  return (
+    <section className="closed-outcome-section">
+      <span className="eyebrow">{title}</span>
+      <div className="closed-outcome-list">
+        {items.map((item) => (
+          <div className="closed-outcome-row" key={`${title}-${item}`}>
+            <span aria-hidden="true">{mark}</span>
+            <strong>{item}</strong>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function ClosedDay({ record, onCalendar }) {
   const parts = dateParts(record.date);
 
@@ -60,6 +78,20 @@ export function ClosedDay({ record, onCalendar }) {
           </div>
         </div>
       </article>
+
+      <div className="closed-outcome-details">
+        <OutcomeSection title="DONE" mark="✓" items={record.done} />
+        <OutcomeSection
+          title="TOMORROW"
+          mark="←"
+          items={record.tomorrow}
+        />
+        <OutcomeSection
+          title="LET GO"
+          mark="↓"
+          items={record.letgo}
+        />
+      </div>
 
       <button
         className="text-button"
