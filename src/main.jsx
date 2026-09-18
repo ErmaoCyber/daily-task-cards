@@ -366,11 +366,14 @@ function OverviewDeck({
   useEffect(() => () => clearTimeout(timer.current), []);
 
   useEffect(() => {
+    if (!cards.length) {
+      setSelectedIndex(0);
+      return;
+    }
+
     setSelectedIndex((current) =>
-      Math.min(
-        Math.max(current, 0),
-        Math.max(cards.length - 1, 0),
-      ),
+      ((current % cards.length) + cards.length) %
+      cards.length,
     );
   }, [cards.length]);
 
@@ -383,17 +386,41 @@ function OverviewDeck({
     }
   }, [selectedId, cards.length]);
 
+  function wrapIndex(index) {
+    if (!cards.length) return 0;
+    return ((index % cards.length) + cards.length) %
+      cards.length;
+  }
+
   function select(index) {
-    setSelectedIndex(
-      Math.min(
-        Math.max(index, 0),
-        Math.max(cards.length - 1, 0),
-      ),
+    setSelectedIndex(wrapIndex(index));
+  }
+
+  function moveSelection(step) {
+    if (cards.length <= 1) return;
+    setSelectedIndex((current) =>
+      wrapIndex(current + step),
     );
+  }
+
+  function circularOffset(index) {
+    if (!cards.length) return 0;
+
+    let offset = index - selectedIndex;
+    const half = cards.length / 2;
+
+    if (offset > half) {
+      offset -= cards.length;
+    } else if (offset < -half) {
+      offset += cards.length;
+    }
+
+    return offset;
   }
 
   function enter(card) {
     if (!card || enteringId) return;
+
     setEnteringId(card.id);
     timer.current = setTimeout(
       () => onEnter(card.id),
@@ -417,7 +444,9 @@ function OverviewDeck({
       time: performance.now(),
     };
     setDragging(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture(
+      event.pointerId,
+    );
   }
 
   function move(event) {
@@ -425,13 +454,8 @@ function OverviewDeck({
     if (start?.id !== event.pointerId) return;
 
     const raw = event.clientY - start.y;
-    const atTop = selectedIndex === 0 && raw > 0;
-    const atBottom =
-      selectedIndex === cards.length - 1 && raw < 0;
-    const resistance = atTop || atBottom ? 0.35 : 1;
-
     setDragY(
-      Math.max(-78, Math.min(78, raw * resistance)),
+      Math.max(-82, Math.min(82, raw)),
     );
   }
 
@@ -454,14 +478,16 @@ function OverviewDeck({
       Math.abs(dy) > Math.abs(dx) * 1.15;
     const shouldMove =
       vertical &&
-      (Math.abs(dy) > 34 || Math.abs(velocity) > 0.32);
+      (Math.abs(dy) > 32 ||
+        Math.abs(velocity) > 0.3);
 
     if (shouldMove) {
       ignoreClick.current = true;
-      select(selectedIndex + (dy < 0 ? 1 : -1));
+      moveSelection(dy < 0 ? 1 : -1);
+
       window.setTimeout(() => {
         ignoreClick.current = false;
-      }, 80);
+      }, 90);
     }
 
     setDragY(0);
@@ -484,10 +510,10 @@ function OverviewDeck({
       onKeyDown={(event) => {
         if (event.key === "ArrowDown") {
           event.preventDefault();
-          select(selectedIndex + 1);
+          moveSelection(1);
         } else if (event.key === "ArrowUp") {
           event.preventDefault();
-          select(selectedIndex - 1);
+          moveSelection(-1);
         } else if (
           event.key === "Enter" ||
           event.key === " "
@@ -505,12 +531,12 @@ function OverviewDeck({
         }
 
         event.preventDefault();
+
         const now = performance.now();
         if (now - wheelAt.current < 170) return;
+
         wheelAt.current = now;
-        select(
-          selectedIndex + (event.deltaY > 0 ? 1 : -1),
-        );
+        moveSelection(event.deltaY > 0 ? 1 : -1);
       }}
       onPointerDown={begin}
       onPointerMove={move}
@@ -528,10 +554,10 @@ function OverviewDeck({
     >
       <div className="overview-deck-stack">
         {cards.map((card, index) => {
-          const relative = index - selectedIndex;
+          const relative = circularOffset(index);
           const distance = Math.abs(relative);
           const selected = relative === 0;
-          const far = distance > 3;
+          const hidden = distance > 2;
 
           return (
             <button
@@ -542,7 +568,7 @@ function OverviewDeck({
               key={card.id}
               className={`overview-deck-card ${
                 selected ? "is-selected" : ""
-              } ${far ? "is-far" : ""} ${
+              } ${hidden ? "is-far" : ""} ${
                 enteringId === card.id
                   ? "is-entering-card"
                   : ""
@@ -567,7 +593,9 @@ function OverviewDeck({
               </span>
               <strong>{card.title}</strong>
               {card.repeat && (
-                <small>{repeatLabel(card.repeat)}</small>
+                <small>
+                  {repeatLabel(card.repeat)}
+                </small>
               )}
             </button>
           );
