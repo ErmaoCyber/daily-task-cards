@@ -346,7 +346,6 @@ function OverviewDeck({
 
   const [selectedIndex, setSelectedIndex] =
     useState(initialIndex);
-  const [dragY, setDragY] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [enteringId, setEnteringId] = useState(null);
   const origin = useRef(null);
@@ -383,30 +382,11 @@ function OverviewDeck({
       cards.length;
   }
 
-  function select(index) {
-    setSelectedIndex(wrapIndex(index));
-  }
-
   function moveSelection(step) {
     if (cards.length <= 1) return;
     setSelectedIndex((current) =>
       wrapIndex(current + step),
     );
-  }
-
-  function circularOffset(index) {
-    if (!cards.length) return 0;
-
-    let offset = index - selectedIndex;
-    const half = cards.length / 2;
-
-    if (offset > half) {
-      offset -= cards.length;
-    } else if (offset < -half) {
-      offset += cards.length;
-    }
-
-    return offset;
   }
 
   function enter(card) {
@@ -415,7 +395,7 @@ function OverviewDeck({
     setEnteringId(card.id);
     timer.current = setTimeout(
       () => onEnter(card.id),
-      270,
+      250,
     );
   }
 
@@ -437,16 +417,6 @@ function OverviewDeck({
     setDragging(true);
     event.currentTarget.setPointerCapture(
       event.pointerId,
-    );
-  }
-
-  function move(event) {
-    const start = origin.current;
-    if (start?.id !== event.pointerId) return;
-
-    const raw = event.clientY - start.y;
-    setDragY(
-      Math.max(-82, Math.min(82, raw)),
     );
   }
 
@@ -478,25 +448,51 @@ function OverviewDeck({
 
       window.setTimeout(() => {
         ignoreClick.current = false;
-      }, 90);
+      }, 110);
+    }
+  }
+
+  function cancel(event) {
+    if (
+      event?.pointerId != null &&
+      origin.current?.id !== event.pointerId
+    ) {
+      return;
     }
 
-    setDragY(0);
+    origin.current = null;
+    setDragging(false);
   }
 
   if (!cards.length) return null;
 
+  const selectedCard = cards[selectedIndex];
+  const slotOffsets = [-2, -1, 1, 2];
+  const seen = new Set([selectedCard.id]);
+
+  const surrounding = slotOffsets
+    .map((offset) => {
+      const index = wrapIndex(selectedIndex + offset);
+      return {
+        card: cards[index],
+        index,
+        offset,
+      };
+    })
+    .filter(({ card }) => {
+      if (!card || seen.has(card.id)) return false;
+      seen.add(card.id);
+      return true;
+    });
+
   return (
     <div
-      className={`overview-deck ${
+      className={`overview-deck overview-fixed-focus ${
         dragging ? "is-dragging" : ""
       } ${enteringId ? "is-entering-focus" : ""}`}
-      style={{ "--browse-drag": `${dragY}px` }}
       role="listbox"
       aria-label="Still today cards"
-      aria-activedescendant={`overview-card-${
-        cards[selectedIndex]?.id
-      }`}
+      aria-activedescendant="overview-selected-card"
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === "ArrowDown") {
@@ -510,7 +506,7 @@ function OverviewDeck({
           event.key === " "
         ) {
           event.preventDefault();
-          enter(cards[selectedIndex]);
+          enter(selectedCard);
         }
       }}
       onWheel={(event) => {
@@ -530,71 +526,66 @@ function OverviewDeck({
         moveSelection(event.deltaY > 0 ? 1 : -1);
       }}
       onPointerDown={begin}
-      onPointerMove={move}
       onPointerUp={release}
-      onPointerCancel={() => {
-        origin.current = null;
-        setDragging(false);
-        setDragY(0);
-      }}
-      onLostPointerCapture={() => {
-        origin.current = null;
-        setDragging(false);
-        setDragY(0);
-      }}
+      onPointerCancel={cancel}
+      onLostPointerCapture={cancel}
     >
       <div className="overview-deck-stack">
-        {cards.map((card, index) => {
-          const relative = circularOffset(index);
-          const distance = Math.abs(relative);
-          const selected = relative === 0;
-          const hidden = distance > 2;
+        {surrounding.map(({ card, index, offset }) => (
+          <button
+            type="button"
+            role="option"
+            aria-selected="false"
+            key={card.id}
+            className="overview-side-card"
+            style={{ "--slot": offset }}
+            onClick={() => {
+              if (ignoreClick.current) return;
+              setSelectedIndex(index);
+            }}
+          >
+            <span className="overview-card-time">
+              {card.time || "Anytime"}
+            </span>
+            <strong>{card.title}</strong>
+            {card.repeat && (
+              <small>{repeatLabel(card.repeat)}</small>
+            )}
+          </button>
+        ))}
 
-          return (
-            <button
-              id={`overview-card-${card.id}`}
-              type="button"
-              role="option"
-              aria-selected={selected}
-              key={card.id}
-              className={`overview-deck-card ${
-                selected ? "is-selected" : ""
-              } ${hidden ? "is-far" : ""} ${
-                enteringId === card.id
-                  ? "is-entering-card"
-                  : ""
-              }`}
-              style={{
-                "--relative": relative,
-                "--distance": distance,
-                zIndex: 30 - distance,
-              }}
-              onClick={() => {
-                if (ignoreClick.current) return;
-
-                if (selected) {
-                  enter(card);
-                } else {
-                  select(index);
-                }
-              }}
-            >
-              <span className="overview-card-time">
-                {card.time || "Anytime"}
-              </span>
-              <strong>{card.title}</strong>
-              {card.repeat && (
-                <small>
-                  {repeatLabel(card.repeat)}
-                </small>
-              )}
-            </button>
-          );
-        })}
+        <button
+          id="overview-selected-card"
+          type="button"
+          role="option"
+          aria-selected="true"
+          className={`overview-center-card ${
+            enteringId === selectedCard.id
+              ? "is-entering-card"
+              : ""
+          }`}
+          onClick={() => {
+            if (ignoreClick.current) return;
+            enter(selectedCard);
+          }}
+        >
+          <span
+            className="overview-center-content"
+            key={selectedCard.id}
+          >
+            <span className="overview-card-time">
+              {selectedCard.time || "Anytime"}
+            </span>
+            <strong>{selectedCard.title}</strong>
+            {selectedCard.repeat && (
+              <small>{repeatLabel(selectedCard.repeat)}</small>
+            )}
+          </span>
+        </button>
       </div>
 
       <p className="overview-deck-hint">
-        Swipe to browse · tap the selected card
+        Swipe to browse · tap to focus
       </p>
     </div>
   );
