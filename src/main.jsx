@@ -538,7 +538,10 @@ function OverviewDeck({
             aria-selected="false"
             key={card.id}
             className="overview-side-card"
-            style={{ "--slot": offset }}
+            style={{
+              "--slot": offset,
+              "--slot-abs": Math.abs(offset),
+            }}
             onClick={() => {
               if (ignoreClick.current) return;
               setSelectedIndex(index);
