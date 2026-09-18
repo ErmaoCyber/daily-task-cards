@@ -1399,11 +1399,11 @@ button.overview-mini:hover {
 
 
 /* Daily wrap-up and history */
-.wrap-up-mode .deck-area {
+.closing-mode .deck-area {
   padding-top: 14px;
 }
 
-.wrap-up-note {
+.closing-note {
   margin: 18px 0 0;
   padding: 14px 16px;
   border-radius: 12px;
@@ -1411,7 +1411,7 @@ button.overview-mini:hover {
   color: #7f8c76;
 }
 
-.wrap-up-note > span {
+.closing-note > span {
   display: block;
   font-size: 9px;
   letter-spacing: 1.8px;
@@ -1419,7 +1419,7 @@ button.overview-mini:hover {
   margin-bottom: 5px;
 }
 
-.wrap-up-note p {
+.closing-note p {
   margin: 0;
   font-size: 11px;
 }
@@ -1582,5 +1582,92 @@ button.overview-mini:hover {
 
   .history-outcomes {
     display: none;
+  }
+}
+
+
+/* Close Today lives in Overview */
+.overview-day-facts {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 30px;
+  padding: 22px 0;
+  border-top: 1px solid #dfe4d8;
+  border-bottom: 1px solid #dfe4d8;
+}
+
+.overview-day-facts > div,
+.overview-steps-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.overview-day-facts span,
+.overview-steps-field span {
+  font-size: 10px;
+  color: #8b957e;
+}
+
+.overview-day-facts strong {
+  font-size: 18px;
+  font-weight: 500;
+  color: #344a3a;
+}
+
+.overview-steps-field input {
+  width: 112px;
+  border: 0;
+  border-bottom: 1px solid #cbd4c2;
+  background: transparent;
+  color: #344a3a;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 0 0 5px;
+}
+
+.overview-steps-field input:focus-visible {
+  outline: 0;
+  border-bottom-color: #819674;
+}
+
+.close-intent-note {
+  margin: 0 0 12px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #919a88;
+}
+
+.closing-note {
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #eef1e8;
+  color: #7f8c76;
+}
+
+.closing-note > span {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+}
+
+.closing-note p {
+  margin: 0;
+  font-size: 11px;
+}
+
+@media (max-width: 600px) {
+  .overview-day-facts {
+    gap: 20px;
+  }
+
+  .overview-steps-field input {
+    width: 100px;
   }
 }
