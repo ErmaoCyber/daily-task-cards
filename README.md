@@ -63,6 +63,8 @@ Marker quantity represents all cards that participated in that day, capped at th
 
 Month navigation is gesture-first: swipe left for the next month and right for the previous month. The old arrow buttons are intentionally removed.
 
+On mobile, Calendar is deliberately compressed into a single-view overview: the title collapses, the month grid uses shorter day cells, the selected-day panel becomes a summary, and the primary navigation is fixed to the viewport. Full day detail can still expand and scroll after explicit user intent.
+
 Selecting a date keeps the month visible and updates the panel below it:
 
 - **Past closed day** — Day Card summary, sleep, steps, and optional full outcome detail.
