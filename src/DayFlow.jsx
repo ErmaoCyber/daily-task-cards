@@ -56,11 +56,13 @@ export function ClosedDay({ record, onCalendar }) {
   return (
     <section className="closed">
       <div className="closed-heading-row">
-        <div className="closed-heading-copy">
-          <div className="clear-icon">✓</div>
+        <div className="closed-status">
+          <span className="closed-status-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="m7.5 12.5 3 3 6-7" />
+            </svg>
+          </span>
           <span className="eyebrow">DAY CLOSED</span>
-          <h2>{parts.label}</h2>
-          <p>This day is now part of your calendar.</p>
         </div>
 
         <button
@@ -68,9 +70,20 @@ export function ClosedDay({ record, onCalendar }) {
           className="closed-calendar-link"
           onClick={onCalendar}
         >
+          <span className="closed-calendar-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <rect x="4" y="5.5" width="16" height="14" rx="3" />
+              <path d="M8 3.5v4M16 3.5v4M4 9.5h16" />
+              <path d="M8 13h.01M12 13h.01M16 13h.01" />
+            </svg>
+          </span>
           <span>Calendar</span>
-          <span aria-hidden="true">↗</span>
         </button>
+      </div>
+
+      <div className="closed-heading-copy">
+        <h2>{parts.label}</h2>
+        <p>This day is now part of your calendar.</p>
       </div>
 
       <article className="day-card-large">
