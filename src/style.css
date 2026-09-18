@@ -6694,3 +6694,152 @@ main {
     min-height: 285px;
   }
 }
+
+
+/* Vertical rhythm audit v0.2 */
+
+/* Mobile pages should not stack all information at the very top and leave
+ * the rest of the viewport visually unused. Short compositions are placed
+ * around the upper-middle / center region; long content remains scrollable.
+ */
+@media (max-width: 600px) {
+  /* Today Overview */
+  .page-today .today-overview {
+    width: 100%;
+    min-height: calc(100dvh - 300px);
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .page-today .today-overview .overview-content {
+    width: 100%;
+  }
+
+  .page-today .today-overview.is-clear {
+    min-height: calc(100dvh - 320px);
+  }
+
+  .page-today .today-overview.is-clear .overview-title-row {
+    margin-bottom: 28px;
+  }
+
+  .page-today .today-overview.is-clear .still-heading {
+    margin-bottom: 10px;
+  }
+
+  .page-today .today-overview.is-clear .nothing-open {
+    margin: 8px 0 28px;
+    font-size: 15px;
+  }
+
+  .page-today .today-overview.is-clear .overview-outcome-summary {
+    margin-top: 0;
+  }
+
+  .page-today .today-overview.is-clear .day-actions {
+    margin-top: 14px;
+  }
+
+  .page-today .today-overview.is-clear .overview-outcome-summary button {
+    min-height: 72px;
+    padding: 12px 8px;
+  }
+
+  /* Outcome detail is a centered compact modal, not a top-heavy block. */
+  .outcome-sheet-overlay {
+    align-items: center;
+    padding: 20px 16px;
+  }
+
+  .outcome-sheet {
+    width: min(100%, 420px);
+    max-height: min(72dvh, 640px);
+    padding: 20px 20px 22px;
+    border-radius: 22px;
+  }
+
+  .outcome-sheet-handle {
+    display: none;
+  }
+
+  .outcome-sheet-list {
+    margin-top: 18px;
+  }
+
+  .outcome-sheet-row {
+    min-height: 58px;
+    padding: 13px 0;
+  }
+
+  .outcome-sheet-row strong {
+    font-size: 14px;
+  }
+
+  .outcome-sheet-row small,
+  .outcome-sheet-empty {
+    font-size: 11px;
+  }
+
+  /* Calendar day detail uses the same modal rhythm. */
+  .calendar-detail-overlay {
+    align-items: center;
+    padding: 20px 16px;
+  }
+
+  .calendar-detail-sheet {
+    width: min(100%, 430px);
+    max-height: min(76dvh, 660px);
+    padding: 22px 20px 24px;
+  }
+
+  .calendar-sheet-row {
+    min-height: 54px;
+    padding: 12px 0;
+  }
+
+  .calendar-sheet-row strong {
+    font-size: 13px;
+  }
+
+  /* Closed Day is a centered result composition. */
+  .closed {
+    min-height: calc(100dvh - 290px);
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .closed .day-card-large {
+    margin-top: 24px;
+  }
+
+  /* Past-day resolution should also live in the usable center area. */
+  .past-day-flow {
+    min-height: calc(100dvh - 250px);
+    margin-bottom: 88px;
+    padding-top: clamp(10px, 3dvh, 34px);
+  }
+
+  /* Me detail pages are allowed to scroll, but short content should not
+   * cling to the very top edge. */
+  .me-detail {
+    padding-top: clamp(8px, 2.5dvh, 28px);
+  }
+
+  .life-list {
+    gap: 12px;
+  }
+
+  .life-item {
+    min-height: 58px;
+  }
+
+  .review-card,
+  .data-cards article,
+  .integration-row {
+    border-radius: 16px;
+  }
+}
