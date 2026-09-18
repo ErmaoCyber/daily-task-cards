@@ -1,6 +1,9 @@
 name: Deploy to VPS
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -10,7 +13,7 @@ concurrency:
 jobs:
   deploy:
     name: Deploy daily-task-cards
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     steps:
