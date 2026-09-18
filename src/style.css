@@ -5211,14 +5211,14 @@ main {
 }
 
 .overview-side-card {
-  z-index: calc(20 - abs(var(--slot)));
+  z-index: calc(20 - var(--slot-abs));
   height: 76px;
   padding: 14px 20px;
   display: grid;
   align-content: center;
   background: #e5eadf;
   color: #435647;
-  opacity: calc(1 - (abs(var(--slot)) * 0.17));
+  opacity: calc(1 - (var(--slot-abs) * 0.17));
   transform:
     translateY(
       calc(
@@ -5226,7 +5226,7 @@ main {
         (var(--slot) * 62px)
       )
     )
-    scale(calc(1 - (abs(var(--slot)) * 0.025)));
+    scale(calc(1 - (var(--slot-abs) * 0.025)));
   box-shadow: 0 7px 20px -19px #25382d66;
   transition:
     transform 260ms cubic-bezier(0.22, 0.8, 0.25, 1),
@@ -5316,7 +5316,7 @@ main {
           (var(--slot) * 50px)
         )
       )
-      scale(calc(1 - (abs(var(--slot)) * 0.02)));
+      scale(calc(1 - (var(--slot-abs) * 0.02)));
   }
 
   .page-today .overview-side-card strong {
@@ -5347,6 +5347,6 @@ main {
           (var(--slot) * 43px)
         )
       )
-      scale(calc(1 - (abs(var(--slot)) * 0.02)));
+      scale(calc(1 - (var(--slot-abs) * 0.02)));
   }
 }
