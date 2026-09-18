@@ -366,7 +366,7 @@ function OverviewDeck({
     if (nextIndex >= 0) {
       setSelectedIndex(nextIndex);
     }
-  }, [selectedId, cards]);
+  }, [selectedId, cards.length]);
 
   function select(index) {
     setSelectedIndex(
