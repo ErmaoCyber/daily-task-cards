@@ -8,8 +8,14 @@ function dateParts(date) {
       day: "numeric",
       month: "short",
     }).format(value),
-    weekday: new Intl.DateTimeFormat("en", { weekday: "short" }).format(value).toUpperCase(),
-    day: new Intl.DateTimeFormat("en", { day: "numeric" }).format(value),
+    weekday: new Intl.DateTimeFormat("en", {
+      weekday: "short",
+    })
+      .format(value)
+      .toUpperCase(),
+    day: new Intl.DateTimeFormat("en", {
+      day: "numeric",
+    }).format(value),
   };
 }
 
@@ -20,70 +26,22 @@ function formatSteps(value) {
 function OutcomeCounts({ done, tomorrow, letgo }) {
   return (
     <div className="outcome-counts">
-      <span><strong>{done}</strong> Done</span>
-      <span><strong>{tomorrow}</strong> Tomorrow</span>
-      <span><strong>{letgo}</strong> Let Go</span>
+      <span>
+        <strong>{done}</strong> Done
+      </span>
+      <span>
+        <strong>{tomorrow}</strong> Tomorrow
+      </span>
+      <span>
+        <strong>{letgo}</strong> Let Go
+      </span>
     </div>
-  );
-}
-
-export function CloseDay({
-  dateLabel,
-  doneCount,
-  tomorrowCount,
-  letGoCount,
-  sleep,
-  onBack,
-  onClose,
-}) {
-  const [steps, setSteps] = useState("8642");
-
-  function submit(event) {
-    event.preventDefault();
-    const value = Number(steps);
-    onClose(Number.isFinite(value) && value >= 0 ? Math.round(value) : 0);
-  }
-
-  return (
-    <section className="close-day">
-      <button className="add-back" onClick={onBack}>← Back to today</button>
-      <div className="clear-icon">✓</div>
-      <span className="eyebrow">TODAY IS CLEAR</span>
-      <h2>Close the day.</h2>
-      <p>No score. No verdict. Just what happened.</p>
-
-      <div className="day-summary">
-        <h3>{dateLabel}</h3>
-        <p>Your day, kept as it was.</p>
-        <OutcomeCounts done={doneCount} tomorrow={tomorrowCount} letgo={letGoCount} />
-        <div className="metrics close-metrics">
-          <div>
-            <span>Sleep</span>
-            <strong>{sleep}</strong>
-          </div>
-          <label className="steps-field">
-            <span>Steps</span>
-            <input
-              type="number"
-              min="0"
-              inputMode="numeric"
-              value={steps}
-              onChange={(event) => setSteps(event.target.value)}
-              aria-label="Steps today"
-            />
-          </label>
-        </div>
-      </div>
-
-      <form onSubmit={submit}>
-        <button className="primary" type="submit">Close today <span>→</span></button>
-      </form>
-    </section>
   );
 }
 
 export function ClosedDay({ record, onHistory }) {
   const parts = dateParts(record.date);
+
   return (
     <section className="closed">
       <div className="clear-icon">✓</div>
@@ -118,12 +76,16 @@ export function ClosedDay({ record, onHistory }) {
 
 function DayDetail({ record, onBack }) {
   const parts = dateParts(record.date);
+
   const section = (title, mark, items) =>
     items.length ? (
       <section className="detail-section">
         <span className="eyebrow">{title}</span>
         {items.map((item) => (
-          <div className="detail-row" key={`${title}-${item}`}>
+          <div
+            className="detail-row"
+            key={`${title}-${item}`}
+          >
             <span>{mark}</span>
             <strong>{item}</strong>
           </div>
@@ -133,7 +95,10 @@ function DayDetail({ record, onBack }) {
 
   return (
     <section className="history-detail">
-      <button className="add-back" onClick={onBack}>← History</button>
+      <button className="add-back" onClick={onBack}>
+        ← History
+      </button>
+
       <span className="eyebrow">DAY CARD</span>
       <h1>{parts.label}</h1>
 
@@ -159,13 +124,22 @@ function DayDetail({ record, onBack }) {
 
 export function HistoryView({ history, onToday }) {
   const [selected, setSelected] = useState(null);
+
   const ordered = useMemo(
-    () => [...history].sort((a, b) => b.date.localeCompare(a.date)),
+    () =>
+      [...history].sort((a, b) =>
+        b.date.localeCompare(a.date),
+      ),
     [history],
   );
 
   if (selected) {
-    return <DayDetail record={selected} onBack={() => setSelected(null)} />;
+    return (
+      <DayDetail
+        record={selected}
+        onBack={() => setSelected(null)}
+      />
+    );
   }
 
   return (
@@ -175,8 +149,14 @@ export function HistoryView({ history, onToday }) {
           <span className="eyebrow">LOOK BACK</span>
           <h1>Your days.</h1>
         </div>
-        <button className="text-button history-today" onClick={onToday}>Today →</button>
+        <button
+          className="text-button history-today"
+          onClick={onToday}
+        >
+          Today →
+        </button>
       </div>
+
       <p className="history-intro">
         No grades. Just a quiet record of what actually happened.
       </p>
@@ -184,12 +164,18 @@ export function HistoryView({ history, onToday }) {
       <div className="history-list">
         {ordered.map((record) => {
           const parts = dateParts(record.date);
+
           return (
-            <button className="history-card" key={record.id} onClick={() => setSelected(record)}>
+            <button
+              className="history-card"
+              key={record.id}
+              onClick={() => setSelected(record)}
+            >
               <span className="history-date">
                 <span>{parts.weekday}</span>
                 <strong>{parts.day}</strong>
               </span>
+
               <span className="history-info">
                 <h3>{record.done.length} done</h3>
                 <p>
@@ -198,10 +184,16 @@ export function HistoryView({ history, onToday }) {
                   {record.sleep} sleep
                 </p>
               </span>
+
               <span className="history-outcomes">
-                {record.tomorrow.length > 0 && <small>← {record.tomorrow.length}</small>}
-                {record.letgo.length > 0 && <small>↓ {record.letgo.length}</small>}
+                {record.tomorrow.length > 0 && (
+                  <small>← {record.tomorrow.length}</small>
+                )}
+                {record.letgo.length > 0 && (
+                  <small>↓ {record.letgo.length}</small>
+                )}
               </span>
+
               <span className="history-chevron">›</span>
             </button>
           );
