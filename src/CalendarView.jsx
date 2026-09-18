@@ -71,7 +71,12 @@ function PastPanel({ record, onView }) {
     <>
       <div className="calendar-outcomes">
         <span><strong>{record.done.length}</strong> Done</span>
-        <span><strong>{record.tomorrow.length}</strong> Tomorrow</span>
+        <span>
+          <strong>
+            {record.broughtForward?.length || record.tomorrow.length}
+          </strong>{" "}
+          {record.broughtForward?.length ? "Brought forward" : "Tomorrow"}
+        </span>
         <span><strong>{record.letgo.length}</strong> Let Go</span>
       </div>
 
@@ -173,7 +178,9 @@ function DayDetailSheet({ record, onClose }) {
 
         <div className="calendar-sheet-scroll">
           {section("DONE", "✓", record.done)}
-          {section("TOMORROW", "←", record.tomorrow)}
+          {record.broughtForward?.length
+            ? section("BROUGHT FORWARD", "→", record.broughtForward)
+            : section("TOMORROW", "←", record.tomorrow)}
           {section("LET GO", "↓", record.letgo)}
         </div>
       </section>
@@ -189,6 +196,7 @@ export default function CalendarView({
   onOpenToday,
   onAddCard,
   onEditCard,
+  onResolvePastDay,
 }) {
   const [selectedDate, setSelectedDate] = useState(today);
   const [monthCursor, setMonthCursor] = useState(() => monthStart(today));
@@ -246,6 +254,7 @@ export default function CalendarView({
       return (
         record.done.length +
         record.tomorrow.length +
+        (record.broughtForward?.length || 0) +
         record.letgo.length
       );
     }
@@ -604,6 +613,13 @@ export default function CalendarView({
             <span>
               {selectedOpenPast.cardCount} cards participated in this day.
             </span>
+            <button
+              type="button"
+              className="primary calendar-primary calendar-resolve-day"
+              onClick={() => onResolvePastDay(selectedOpenPast)}
+            >
+              Resolve Day <span>→</span>
+            </button>
           </div>
         )}
 
