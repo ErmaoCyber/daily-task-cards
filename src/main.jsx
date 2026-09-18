@@ -183,10 +183,18 @@ function TodayDeck({
           </button>
         ) : (
           <button
-            className="deck-today-link"
+            className="deck-today-link deck-overview-link"
             onClick={onOverview}
+            aria-label="Open Today overview"
           >
-            TODAY
+            <span className="deck-overview-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="5" y="6" width="13" height="12" rx="2.5" />
+                <path d="M8 3.5h11a2 2 0 0 1 2 2v10.5" />
+              </svg>
+            </span>
+            <span>Today</span>
+            <small>Overview</small>
           </button>
         )}
 
@@ -311,24 +319,40 @@ function TodayDeck({
                 >
                   {card.time || "Anytime"}
                 </span>
-                {card.repeat && (
-                  <span className="card-repeat">
-                    {repeatLabel(card.repeat)}
-                  </span>
+                <span className="card-position">
+                  1 / {cards.length}
+                </span>
+              </div>
+
+              <div className="card-main">
+                <h2>{card.title}</h2>
+                {card.note && (
+                  <p className="card-note">{card.note}</p>
                 )}
               </div>
 
-              <h2>{card.title}</h2>
+              <div className="card-context-row">
+                {card.alert && (
+                  <span className="card-context-chip">
+                    <span aria-hidden="true">◷</span>
+                    {card.alert === "At time"
+                      ? "Reminder at time"
+                      : card.alert}
+                  </span>
+                )}
 
-              <div className="card-support">
-                <span className="card-support-line" />
-                <span>
-                  {card.repeat
-                    ? "Recurring card"
-                    : card.time
-                      ? "Scheduled today"
-                      : "No fixed time"}
-                </span>
+                {card.repeat && (
+                  <span className="card-context-chip">
+                    <span aria-hidden="true">↻</span>
+                    {repeatLabel(card.repeat)}
+                  </span>
+                )}
+
+                {!card.alert && !card.repeat && (
+                  <span className="card-context-chip card-context-quiet">
+                    {card.time ? "Scheduled" : "Flexible time"}
+                  </span>
+                )}
               </div>
             </div>
 
