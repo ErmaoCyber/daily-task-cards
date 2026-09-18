@@ -149,7 +149,7 @@ function TodayDeck({
             className="deck-today-link"
             onClick={onExitFinalizing}
           >
-            ← BACK TO TODAY
+            ← TODAY
           </button>
         ) : (
           <button
@@ -162,8 +162,11 @@ function TodayDeck({
 
         <div className="deck-heading-actions">
           <span className="deck-count">
-            {cards.length - 1}{" "}
-            {cards.length === 2 ? "card" : "cards"} left
+            {finalizing
+              ? `CLOSING · ${cards.length} LEFT`
+              : `${cards.length - 1} ${
+                  cards.length === 2 ? "card" : "cards"
+                } left`}
           </span>
           {!finalizing && (
             <button
@@ -177,13 +180,6 @@ function TodayDeck({
           )}
         </div>
       </div>
-
-      {finalizing && (
-        <div className="closing-note">
-          <span>CLOSING TODAY</span>
-          <p>Give each open card a final place.</p>
-        </div>
-      )}
 
       <div className="deck-area">
         <div className="deck-stack">
@@ -575,6 +571,77 @@ function OverviewDeck({
   );
 }
 
+function OutcomeSheet({
+  title,
+  mark,
+  cards,
+  onClose,
+}) {
+  useEffect(() => {
+    function onKeyDown(event) {
+      if (event.key === "Escape") onClose();
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      className="outcome-sheet-overlay"
+      role="presentation"
+      onPointerDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="outcome-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="outcome-sheet-title"
+      >
+        <div className="outcome-sheet-handle" aria-hidden="true" />
+
+        <div className="outcome-sheet-heading">
+          <div>
+            <span className="eyebrow">TODAY</span>
+            <h2 id="outcome-sheet-title">
+              {title} · {cards.length}
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            className="outcome-sheet-close"
+            aria-label={`Close ${title}`}
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="outcome-sheet-list">
+          {cards.length ? (
+            cards.map((card) => (
+              <div className="outcome-sheet-row" key={card.id}>
+                <span>{mark}</span>
+                <div>
+                  <strong>{card.title}</strong>
+                  <small>{card.time || "Anytime"}</small>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="outcome-sheet-empty">
+              Nothing here today.
+            </p>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function TodayOverview({
   open,
   done,
@@ -585,21 +652,42 @@ function TodayOverview({
   onAdd,
   onCloseToday,
 }) {
-  const mini = (card) => (
-    <div
-      className="overview-mini quiet-mini"
-      key={card.id}
-    >
-      <span>{card.time || "Anytime"}</span>
-      <h3>{card.title}</h3>
-    </div>
-  );
+  const [outcomeSheet, setOutcomeSheet] = useState(null);
+
+  const outcomes = [
+    {
+      key: "done",
+      label: "Done",
+      mark: "✓",
+      cards: done,
+    },
+    {
+      key: "tomorrow",
+      label: "Tomorrow",
+      mark: "←",
+      cards: tomorrow,
+    },
+    {
+      key: "letgo",
+      label: "Let Go",
+      mark: "↓",
+      cards: letgo,
+    },
+  ];
 
   return (
     <section className="today-overview">
       <div className="overview-content">
         <div className="overview-title-row">
-          <h2>Today</h2>
+          <div>
+            <h2>Today</h2>
+            <p className="open-count">
+              {open.length
+                ? `${open.length} still open`
+                : "Everything has a place for today."}
+            </p>
+          </div>
+
           <button
             className="deck-add overview-add"
             type="button"
@@ -609,11 +697,6 @@ function TodayOverview({
             +
           </button>
         </div>
-        <p className="open-count">
-          {open.length
-            ? `${open.length} still open`
-            : "Everything has a place for today."}
-        </p>
 
         <div className="still-heading eyebrow">
           STILL TODAY
@@ -629,37 +712,24 @@ function TodayOverview({
           <p className="nothing-open">Today is clear.</p>
         )}
 
-        <div className="overview-folds">
-          <details>
-            <summary>
-              Completed <span>{done.length}</span>
-            </summary>
-            {done.map(mini)}
-          </details>
-
-          <details>
-            <summary>
-              Tomorrow <span>{tomorrow.length}</span>
-            </summary>
-            {tomorrow.map(mini)}
-          </details>
-
-          <details>
-            <summary>
-              Let Go <span>{letgo.length}</span>
-            </summary>
-            {letgo.map(mini)}
-          </details>
+        <div
+          className="overview-outcome-summary"
+          aria-label="Today's outcomes"
+        >
+          {outcomes.map((outcome) => (
+            <button
+              key={outcome.key}
+              type="button"
+              onClick={() => setOutcomeSheet(outcome)}
+            >
+              <span>{outcome.mark}</span>
+              <strong>{outcome.cards.length}</strong>
+              <small>{outcome.label}</small>
+            </button>
+          ))}
         </div>
 
         <div className="day-actions">
-          {open.length > 0 && (
-            <p className="close-intent-note">
-              Closing today means each open card needs a
-              final decision.
-            </p>
-          )}
-
           <button
             className="primary"
             onClick={onCloseToday}
@@ -668,6 +738,15 @@ function TodayOverview({
           </button>
         </div>
       </div>
+
+      {outcomeSheet && (
+        <OutcomeSheet
+          title={outcomeSheet.label}
+          mark={outcomeSheet.mark}
+          cards={outcomeSheet.cards}
+          onClose={() => setOutcomeSheet(null)}
+        />
+      )}
     </section>
   );
 }
@@ -1090,7 +1169,13 @@ function App() {
   );
 
   return (
-    <div className="app">
+    <div
+      className={`app ${
+        editor ? "app-scroll" : "app-fixed"
+      } page-${page} mode-${mode} ${
+        closedRecord ? "day-is-closed" : ""
+      }`}
+    >
       <header className="brand">
         <a
           href="#"
@@ -1117,7 +1202,9 @@ function App() {
         </span>
       </header>
 
-      <main>
+      <main
+        className={editor ? "screen-scroll" : "screen-fixed"}
+      >
         {editor ? (
           <AddCard
             key={editor.card?.id || `new-${editor.initialDate || day}`}
