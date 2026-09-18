@@ -26,6 +26,34 @@ const actions = {
   letgo: { arrow: "↓", feedback: "LET GO" },
 };
 
+function NavIcon({ type }) {
+  if (type === "calendar") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="4" y="5.5" width="16" height="14" rx="3" />
+        <path d="M8 3.5v4M16 3.5v4M4 9.5h16" />
+        <path d="M8 13h.01M12 13h.01M16 13h.01M8 16.5h.01M12 16.5h.01M16 16.5h.01" />
+      </svg>
+    );
+  }
+
+  if (type === "me") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="8" r="3.25" />
+        <path d="M5.75 19c.75-3.25 3-5 6.25-5s5.5 1.75 6.25 5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="7.25" />
+      <circle className="nav-icon-core" cx="12" cy="12" r="2.6" />
+    </svg>
+  );
+}
+
 function TodayDeck({
   cards,
   now,
@@ -1251,7 +1279,8 @@ function App() {
               }
               onClick={() => setPage("calendar")}
             >
-              <span>▦</span> Calendar
+              <span className="nav-icon"><NavIcon type="calendar" /></span>
+              <span className="nav-label">Calendar</span>
             </button>
 
             <button
@@ -1260,7 +1289,8 @@ function App() {
               }`}
               onClick={() => setPage("today")}
             >
-              <span>◉</span> Today
+              <span className="nav-icon"><NavIcon type="today" /></span>
+              <span className="nav-label">Today</span>
             </button>
 
             <button
@@ -1269,7 +1299,8 @@ function App() {
               }
               onClick={() => setPage("me")}
             >
-              <span>◯</span> Me
+              <span className="nav-icon"><NavIcon type="me" /></span>
+              <span className="nav-label">Me</span>
             </button>
           </nav>
         )}
