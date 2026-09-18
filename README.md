@@ -44,6 +44,10 @@ The upper-right Today header contains:
 
 These are mock live values for now. Closing Today copies them into the Day Card as a historical snapshot.
 
+## Layout
+
+Branding no longer reserves a full-width header band. On larger screens a small wordmark floats in the upper-left; on smaller screens it disappears so the working area starts near the top.
+
 ## Calendar
 
 Calendar replaces the old top-level History screen. It keeps past records, Today, and future plans on one time axis.
@@ -56,6 +60,8 @@ The month view uses a small marker language:
 - **— short line** — a past day that was left open
 
 Marker quantity represents all cards that participated in that day, capped at three markers to show density without turning the month into a dashboard.
+
+Month navigation is gesture-first: swipe left for the next month and right for the previous month. The old arrow buttons are intentionally removed.
 
 Selecting a date keeps the month visible and updates the panel below it:
 
