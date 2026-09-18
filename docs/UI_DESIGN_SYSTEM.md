@@ -948,6 +948,20 @@ This is a shared Me navigation rule, not a Life List-specific behaviour.
 
 The reason for avoiding an extreme-edge-only gesture is practical: mobile Safari and iOS may reserve the screen edge for browser/system navigation, making app-level edge gestures unreliable.
 
+### Me swipe-back hit area
+
+The swipe-back gesture belongs to the **detail page surface**, not only to visible content blocks.
+
+Required:
+
+- the swipe hit area extends through the full usable viewport above the fixed bottom navigation
+- blank visual space is still interactive page space
+- the gesture must work when the drag begins on text, cards, or empty background
+- the fixed bottom navigation keeps its own touch ownership and must not trigger page back
+- page content height must not determine whether navigation gestures are available
+
+A short detail page and a long detail page must offer the same back-navigation affordance.
+
 ---
 
 ## 14. Closed Day
