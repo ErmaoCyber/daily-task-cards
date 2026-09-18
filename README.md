@@ -1,8 +1,6 @@
 # Day by day
 
-A small React + Vite interaction prototype for a card-first daily planner. All data lives in memory and resets on refresh.
-
-The prototype is deliberately narrow: create a card, make one decision at a time, close the day once, then keep a quiet Day Card in History.
+A small React + Vite interaction prototype for a card-first daily planner. All data is currently in memory and resets on refresh.
 
 ## Run
 
@@ -11,59 +9,68 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite. To check a production build, run `npm run build`.
+Open the local URL printed by Vite.
 
-## Core card gestures
+## Core interaction
 
-The interaction model is currently frozen as:
+Focus mode uses four gestures:
 
-- **Right → Done** — it happened today.
-- **Up ↑ Not now** — skip it for this round, but keep it in Today.
-- **Left ← Tomorrow** — today is finished with it; bring it back tomorrow.
-- **Down ↓ Let Go** — consciously release it. This is not delete or failure.
+- Right → Done
+- Up ↑ Not now
+- Left ← Tomorrow
+- Down ↓ Let Go
 
-A gesture must exceed 65px and its main axis must be more than 1.4 times the other axis. Short or diagonal drags spring back.
+The permanent gesture legend is no longer shown during normal use. A lightweight coach appears once per prototype session, while drag feedback still shows the current action on the card.
 
-`Not now` is temporary. It only removes a card from the current round. When the round ends, the card remains under **Still Today**.
+## Today Deck
 
-`Let Go` is a retained outcome, not a database-style delete. During normal daytime use, the prototype offers Undo for five seconds.
+Overview and Focus are now two states of the same deck.
 
-## Daily flow
+- Overview shows all Still Today cards as an overlapping stack.
+- Every visible card keeps its time and title readable.
+- One card has a clear selected state.
+- Swipe vertically to move the selection.
+- Click an unselected card to select it.
+- Click the selected card to draw it into Focus.
+- The old separate bottom deck handle has been removed.
 
-1. Add cards for Today, Tomorrow, or a picked date.
-2. Process Today one card at a time.
-3. Open Today Overview to see what is still open, completed, moved, or let go.
-4. Sleep and steps are visible directly in Today Overview.
-5. Choose **Close Today** once when you are ready to end the day.
-6. If cards are still open, the app immediately asks for a final decision on each one: Done, Tomorrow, or Let Go. `Not now` is no longer available because there is no later once the day is being closed.
-7. As soon as the last open card is resolved, the Day Card is created automatically. There is no second confirmation screen.
-8. If nothing is still open, **Close Today** creates the Day Card immediately.
-9. Open **History** to look back at closed days.
+Completed, Tomorrow, and Let Go stay as quiet collapsible sections below the active deck.
 
-There is deliberately **no daily mood score or productivity grade**. The product principle is:
+## Live status
+
+The upper-right Today header contains the current day context:
+
+- last night's sleep
+- today's current step count
+
+Overview does not repeat those values.
+
+When Today is closed, the current values are copied into the Day Card as a snapshot for History.
+
+## Close Today
+
+Close Today remains the only explicit end-of-day action.
+
+If open cards remain, each one must receive a final Done, Tomorrow, or Let Go decision. Not now is unavailable during closing. The Day Card is created automatically when the final open card is resolved.
+
+There is no daily mood score or productivity grade.
 
 > Capture, don't judge.
 
-## Add Card
+## Current limitations
 
-Use `+` to capture a card. Title is the essential field. Date defaults to Today. Time, repeat, note, and alert controls are prototype-only UI and still use in-memory data.
-
-Time-specific alert choices do not schedule real notifications.
-
-## Current prototype limitations
-
-- No backend or database.
-- No authentication.
-- No persistence; refresh resets the prototype.
-- Sleep is mock data and steps are manual.
-- No weekly report yet.
-- No AI.
-- No real notifications.
+- No backend or database
+- No authentication
+- No persistence
+- Mock sleep and step values
+- No real notifications or external data integrations
+- No weekly report yet
+- No AI
 
 ## Main files
 
-- `src/main.jsx` — App state, Today Deck, Today Overview, swipe lifecycle, and the single Close Today flow.
-- `src/DayFlow.jsx` — closed Day Card and History views.
-- `src/AddCard.jsx` — card creation/editing form.
-- `src/planner.js` — date, sorting, rollover and gesture helpers.
-- `src/style.css` — visual system and interaction styling.
+- `src/main.jsx` — Today Deck, Overview, live status, gestures, and Close Today flow
+- `src/DayFlow.jsx` — Day Card and History
+- `src/AddCard.jsx` — card creation/editing
+- `src/planner.js` — date, sorting, rollover, and gesture helpers
+- `src/style.css` — visual and interaction styling
