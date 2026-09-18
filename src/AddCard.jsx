@@ -6,17 +6,20 @@ export default function AddCard({
   onBack,
   card = null,
   today = localDate(),
+  initialDate = today,
+  backLabel = "Today",
 }) {
   const tomorrow = plusDays(today, 1);
   const [title, setTitle] = useState(card?.title || "");
+  const startingDate = card?.scheduledDate || initialDate || today;
   const [day, setDay] = useState(
-    !card || card.scheduledDate === today
+    startingDate === today
       ? "today"
-      : card.scheduledDate === tomorrow
+      : startingDate === tomorrow
         ? "tomorrow"
         : "pick",
   );
-  const [date, setDate] = useState(card?.scheduledDate || today);
+  const [date, setDate] = useState(startingDate);
   const [showTime, setShowTime] = useState(!!card?.shortTime);
   const [time, setTime] = useState(card?.shortTime || "");
   const [showRepeat, setShowRepeat] = useState(!!card?.repeat);
@@ -68,7 +71,7 @@ export default function AddCard({
   return (
     <section className="add-card-view" aria-labelledby="add-card-heading">
       <button className="add-back" onClick={onBack}>
-        ← Today
+        ← {backLabel}
       </button>
       <form onSubmit={submit}>
         <span className="eyebrow">A LITTLE SPACE FOR ONE THING</span>
