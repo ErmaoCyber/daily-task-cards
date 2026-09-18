@@ -108,6 +108,8 @@ There is no daily mood score or productivity grade.
 
 All future UI work should follow [`docs/UI_DESIGN_SYSTEM.md`](docs/UI_DESIGN_SYSTEM.md). It defines the shared mobile typography, spacing, surfaces, navigation, card geometry, responsive rules, and interaction principles.
 
+Backend data modeling should follow [`docs/DATABASE_DESIGN.md`](docs/DATABASE_DESIGN.md). It defines the domain boundaries, temporal/history strategy, table responsibilities, state transitions, extension points, and the MVP-versus-future implementation scope.
+
 ## Main files
 
 - `src/main.jsx` — Today Deck, Overview, live status, routing, gestures, and Close Today
