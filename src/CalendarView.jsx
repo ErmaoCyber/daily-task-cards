@@ -66,26 +66,7 @@ function Marker({ kind, count }) {
   );
 }
 
-function PastPanel({ record }) {
-  const [expanded, setExpanded] = useState(false);
-
-  useEffect(() => {
-    setExpanded(false);
-  }, [record.date]);
-
-  const section = (title, mark, items) =>
-    items.length ? (
-      <div className="calendar-day-detail-section">
-        <span className="eyebrow">{title}</span>
-        {items.map((item) => (
-          <div className="calendar-day-detail-row" key={`${title}-${item}`}>
-            <span>{mark}</span>
-            <strong>{item}</strong>
-          </div>
-        ))}
-      </div>
-    ) : null;
-
+function PastPanel({ record, onView }) {
   return (
     <>
       <div className="calendar-outcomes">
@@ -108,19 +89,95 @@ function PastPanel({ record }) {
       <button
         type="button"
         className="calendar-text-action"
-        onClick={() => setExpanded((value) => !value)}
+        onClick={onView}
       >
-        {expanded ? "Hide day" : "View day"} <span>{expanded ? "↑" : "↓"}</span>
+        View Day Card <span>→</span>
       </button>
+    </>
+  );
+}
 
-      {expanded && (
-        <div className="calendar-day-detail">
+function DayDetailSheet({ record, onClose }) {
+  useEffect(() => {
+    function onKeyDown(event) {
+      if (event.key === "Escape") onClose();
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  const section = (title, mark, items) =>
+    items.length ? (
+      <section className="calendar-sheet-section">
+        <span className="eyebrow">{title}</span>
+        {items.map((item) => (
+          <div
+            className="calendar-sheet-row"
+            key={`${title}-${item}`}
+          >
+            <span>{mark}</span>
+            <strong>{item}</strong>
+          </div>
+        ))}
+      </section>
+    ) : null;
+
+  return (
+    <div
+      className="calendar-detail-overlay"
+      role="presentation"
+      onPointerDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="calendar-detail-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="calendar-day-detail-title"
+      >
+        <div className="calendar-sheet-handle" aria-hidden="true" />
+
+        <div className="calendar-sheet-heading">
+          <div>
+            <span className="eyebrow">{dateLabel(record.date)}</span>
+            <h2 id="calendar-day-detail-title">Day Card</h2>
+          </div>
+          <button
+            type="button"
+            className="calendar-sheet-close"
+            aria-label="Close Day Card"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="calendar-outcomes calendar-sheet-outcomes">
+          <span><strong>{record.done.length}</strong> Done</span>
+          <span><strong>{record.tomorrow.length}</strong> Tomorrow</span>
+          <span><strong>{record.letgo.length}</strong> Let Go</span>
+        </div>
+
+        <div className="calendar-metrics calendar-sheet-metrics">
+          <div>
+            <span>Sleep</span>
+            <strong>{record.sleep}</strong>
+          </div>
+          <div>
+            <span>Steps</span>
+            <strong>{formatSteps(record.steps)}</strong>
+          </div>
+        </div>
+
+        <div className="calendar-sheet-scroll">
           {section("DONE", "✓", record.done)}
           {section("TOMORROW", "←", record.tomorrow)}
           {section("LET GO", "↓", record.letgo)}
         </div>
-      )}
-    </>
+      </section>
+    </div>
   );
 }
 
@@ -138,6 +195,7 @@ export default function CalendarView({
   const [monthDrag, setMonthDrag] = useState(0);
   const [monthDragging, setMonthDragging] = useState(false);
   const [monthAnimating, setMonthAnimating] = useState(false);
+  const [detailRecord, setDetailRecord] = useState(null);
   const monthOrigin = useRef(null);
   const ignoreDayClick = useRef(false);
   const monthTimer = useRef(null);
@@ -146,6 +204,10 @@ export default function CalendarView({
     () => () => clearTimeout(monthTimer.current),
     [],
   );
+
+  useEffect(() => {
+    setDetailRecord(null);
+  }, [selectedDate]);
 
   const historyByDate = useMemo(
     () => new Map(history.map((record) => [record.date, record])),
@@ -473,7 +535,10 @@ export default function CalendarView({
         </div>
 
         {selectedState === "past-closed" && selectedRecord && (
-          <PastPanel record={selectedRecord} />
+          <PastPanel
+            record={selectedRecord}
+            onView={() => setDetailRecord(selectedRecord)}
+          />
         )}
 
         {selectedState === "today" && (
@@ -548,6 +613,13 @@ export default function CalendarView({
           </p>
         )}
       </section>
+
+      {detailRecord && (
+        <DayDetailSheet
+          record={detailRecord}
+          onClose={() => setDetailRecord(null)}
+        />
+      )}
     </section>
   );
 }
