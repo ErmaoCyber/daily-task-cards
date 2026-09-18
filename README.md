@@ -32,6 +32,7 @@ Overview and Focus are now two states of the same deck.
 - Swipe vertically to move the selection.
 - Click an unselected card to select it.
 - Click the selected card to draw it into Focus.
+- The Overview deck loops in both directions, so browsing has no first/last stop.
 - The old separate bottom deck handle has been removed.
 
 Completed, Tomorrow, and Let Go stay as quiet collapsible sections below the active deck.
