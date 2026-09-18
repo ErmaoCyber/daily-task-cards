@@ -6176,3 +6176,112 @@ main {
 .swipe-feedback {
   display: none !important;
 }
+
+
+/* Unified centered gesture hint */
+
+.deck-gesture-feedback {
+  position: absolute;
+  z-index: 40;
+  left: 50%;
+  top: 50%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.96);
+  transition:
+    opacity 150ms ease,
+    transform 170ms ease;
+}
+
+.deck-gesture-feedback.is-visible {
+  opacity: calc(0.42 + (var(--gesture-strength) * 0.58));
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.deck-feedback-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 9px 13px;
+  border-radius: 999px;
+  background: rgb(247 247 242 / 0.78);
+  border: 1px solid rgb(220 226 215 / 0.82);
+  box-shadow: 0 8px 22px rgb(34 52 42 / 0.10);
+  color: #35503f;
+  backdrop-filter: blur(10px);
+  animation: gesture-hint-content-in 150ms ease both;
+}
+
+.deck-feedback-content strong {
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.deck-feedback-icon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+@keyframes gesture-hint-content-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* All four actions share the same anchor and geometry.
+ * Only icon + label change.
+ */
+.deck-gesture-feedback.feedback-done,
+.deck-gesture-feedback.feedback-tomorrow,
+.deck-gesture-feedback.feedback-notnow,
+.deck-gesture-feedback.feedback-letgo {
+  left: 50%;
+  right: auto;
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%) scale(0.96);
+}
+
+.deck-gesture-feedback.is-visible.feedback-done,
+.deck-gesture-feedback.is-visible.feedback-tomorrow,
+.deck-gesture-feedback.is-visible.feedback-notnow,
+.deck-gesture-feedback.is-visible.feedback-letgo {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+@media (max-width: 600px) {
+  .page-today .deck-gesture-feedback {
+    left: 50%;
+    top: 50%;
+  }
+
+  .page-today .deck-feedback-content {
+    min-height: 36px;
+    padding: 8px 12px;
+  }
+
+  .page-today .deck-feedback-content strong {
+    font-size: 12px;
+  }
+
+  .page-today .deck-feedback-icon {
+    font-size: 16px;
+  }
+}
