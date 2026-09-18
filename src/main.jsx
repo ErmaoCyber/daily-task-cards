@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import AddCard from "./AddCard";
-import { ClosedDay, HistoryView } from "./DayFlow";
+import { ClosedDay } from "./DayFlow";
+import CalendarView from "./CalendarView";
+import {
+  createMockCards,
+  createMockHistory,
+  createMockOpenPastDays,
+} from "./mockData";
 import {
   gesture,
   localDate,
@@ -18,46 +24,6 @@ const actions = {
   notnow: { arrow: "↑", feedback: "NOT NOW" },
   letgo: { arrow: "↓", feedback: "LET GO" },
 };
-
-const initialCards = [
-  { id: 1, title: "Java Study", time: null, shortTime: null },
-  {
-    id: 2,
-    title: "Class",
-    time: "2:00 PM",
-    shortTime: "14:00",
-    alert: "At time",
-  },
-  {
-    id: 3,
-    title: "Swimming",
-    time: "7:00 PM",
-    shortTime: "19:00",
-    alert: "At time",
-  },
-  { id: 4, title: "Buy groceries", time: null, shortTime: null },
-];
-
-const initialHistory = [
-  {
-    id: "2026-09-17",
-    date: "2026-09-17",
-    done: ["Class", "Java Study"],
-    tomorrow: ["Buy groceries"],
-    letgo: [],
-    sleep: "6h 48m",
-    steps: 6321,
-  },
-  {
-    id: "2026-09-16",
-    date: "2026-09-16",
-    done: ["Java Study", "Walk", "Laundry"],
-    tomorrow: [],
-    letgo: ["Read article"],
-    sleep: "7h 21m",
-    steps: 9102,
-  },
-];
 
 function TodayDeck({
   cards,
@@ -740,10 +706,7 @@ function App() {
   const sleepValue = "7h 12m";
 
   const [cards, setCards] = useState(() =>
-    initialCards.map((card) => ({
-      ...card,
-      scheduledDate: localDate(),
-    })),
+    createMockCards(day),
   );
   const [mode, setMode] = useState("deck");
   const [page, setPage] = useState("today");
@@ -751,13 +714,18 @@ function App() {
   const [skipped, setSkipped] = useState([]);
   const [firstId, setFirstId] = useState(null);
   const [toast, setToast] = useState(null);
-  const [history, setHistory] = useState(initialHistory);
+  const [history, setHistory] = useState(() =>
+    createMockHistory(day),
+  );
+  const [openPastDays] = useState(() =>
+    createMockOpenPastDays(day),
+  );
   const [closedRecord, setClosedRecord] = useState(null);
   const [steps, setSteps] = useState(8642);
   const [showGestureCoach, setShowGestureCoach] =
     useState(true);
 
-  const nextId = useRef(5);
+  const nextId = useRef(1000);
   const previousDay = useRef(day);
 
   useEffect(() => {
@@ -1024,9 +992,22 @@ function App() {
     setMode("closing");
   }
 
-  function openAddCard() {
+  function openAddCard(initialDate = day) {
     setToast(null);
-    setEditor({ card: null });
+    setEditor({
+      card: null,
+      initialDate,
+      returnPage: page,
+    });
+  }
+
+  function openEditCard(card) {
+    setToast(null);
+    setEditor({
+      card,
+      initialDate: card.scheduledDate,
+      returnPage: page,
+    });
   }
 
   const dateLabel =
@@ -1039,18 +1020,10 @@ function App() {
       month: "short",
     }).format(now);
 
-  const todayContent = editor ? (
-    <AddCard
-      key={editor.card?.id || "new"}
-      card={editor.card}
-      today={day}
-      onAdd={save}
-      onBack={() => setEditor(null)}
-    />
-  ) : closedRecord ? (
+  const todayContent = closedRecord ? (
     <ClosedDay
       record={closedRecord}
-      onHistory={() => setPage("history")}
+      onCalendar={() => setPage("calendar")}
     />
   ) : (
     <>
@@ -1084,12 +1057,9 @@ function App() {
           cards={deck}
           now={now}
           onAction={act}
-          onEdit={(card) => {
-            setToast(null);
-            setEditor({ card });
-          }}
+          onEdit={openEditCard}
           onOverview={() => setMode("overview")}
-          onAdd={openAddCard}
+          onAdd={() => openAddCard(day)}
           showCoach={showGestureCoach}
         />
       ) : mode === "closing" && open.length ? (
@@ -1098,10 +1068,7 @@ function App() {
           now={now}
           finalizing
           onAction={act}
-          onEdit={(card) => {
-            setToast(null);
-            setEditor({ card });
-          }}
+          onEdit={openEditCard}
           onOverview={() => setMode("overview")}
           onExitFinalizing={() =>
             setMode("overview")
@@ -1115,7 +1082,7 @@ function App() {
           letgo={letgo}
           selectedId={firstId}
           onEnter={enter}
-          onAdd={openAddCard}
+          onAdd={() => openAddCard(day)}
           onCloseToday={requestCloseToday}
         />
       )}
@@ -1151,12 +1118,36 @@ function App() {
       </header>
 
       <main>
-        {page === "today" ? (
+        {editor ? (
+          <AddCard
+            key={editor.card?.id || `new-${editor.initialDate || day}`}
+            card={editor.card}
+            today={day}
+            initialDate={editor.initialDate || day}
+            backLabel={
+              editor.returnPage === "calendar"
+                ? "Calendar"
+                : "Today"
+            }
+            onAdd={save}
+            onBack={() => setEditor(null)}
+          />
+        ) : page === "today" ? (
           todayContent
         ) : (
-          <HistoryView
+          <CalendarView
+            today={day}
+            cards={cards}
             history={history}
-            onToday={() => setPage("today")}
+            openPastDays={openPastDays}
+            onOpenToday={() => {
+              setPage("today");
+              if (!closedRecord) {
+                setMode("overview");
+              }
+            }}
+            onAddCard={(date) => openAddCard(date)}
+            onEditCard={openEditCard}
           />
         )}
       </main>
@@ -1174,11 +1165,11 @@ function App() {
             </button>
             <button
               className={
-                page === "history" ? "active" : ""
+                page === "calendar" ? "active" : ""
               }
-              onClick={() => setPage("history")}
+              onClick={() => setPage("calendar")}
             >
-              <span>▱</span> History
+              <span>▦</span> Calendar
             </button>
           </nav>
         )}
