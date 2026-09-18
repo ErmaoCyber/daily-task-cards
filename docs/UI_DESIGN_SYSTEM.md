@@ -371,6 +371,144 @@ Do not solve this by making the card a full-screen panel. The desired result is:
 
 ---
 
+## 10.1 Gesture Hint System
+
+Gesture hints are lightweight confirmation during Card drag.
+
+They are not banners, sheets, command bars, or dominant overlays.
+
+Their purpose is only to answer one question:
+
+> What action am I currently moving toward?
+
+### Placement
+
+All four gesture actions use one shared fixed anchor area.
+
+The Hint:
+
+- stays in the central region of the active Focus Card
+- does not move to different edges based on gesture direction
+- does not travel with the Card
+- does not stretch into horizontal or vertical bars
+- does not compete with the Card title
+
+The position remains stable.
+
+Only the Hint content changes.
+
+### Content
+
+Use short, consistent action labels:
+
+- ✓ Done
+- ← Tomorrow
+- ↑ Not now
+- ↓ Let go
+
+Text casing and typography must remain consistent across all four actions.
+
+Avoid all-caps labels such as `DONE` or `TOMORROW` unless the whole product system is deliberately changed to that style.
+
+### Visual style
+
+The Hint should feel like a quiet floating label.
+
+Recommended qualities:
+
+- compact size
+- soft rounded shape
+- light translucent surface
+- subtle blur or shadow
+- deep green text/icon
+- low visual weight
+- enough contrast to remain readable during motion
+
+It should feel like a signal, not a new UI panel.
+
+### Motion
+
+All four actions use the same animation language.
+
+#### Enter
+
+When drag intent becomes clear:
+
+- fade from transparent to visible
+- optionally scale from approximately `0.96` to `1`
+- no slide-in from edges
+- no directional movement
+
+#### Change
+
+If the user changes drag direction:
+
+- keep the same fixed Hint container
+- crossfade or softly replace the content
+- do not move the container
+
+#### Exit
+
+When the gesture ends or returns below threshold:
+
+- fade out
+- optionally scale slightly down
+- keep the transition short and quiet
+
+### Gesture strength
+
+Drag distance may influence:
+
+- opacity
+- very subtle scale
+- very subtle shadow strength
+
+Drag distance must not influence:
+
+- Hint position
+- Hint width dramatically
+- layout geometry
+
+### Consistency rule
+
+All four gesture Hints must share:
+
+- one placement
+- one component shape
+- one typography style
+- one animation language
+- one visual weight
+
+If one direction needs a completely different visual treatment, the design is probably wrong.
+
+### Anti-patterns
+
+Do not:
+
+- attach the Hint to the moving Card
+- place different actions on different screen edges
+- create long horizontal bars
+- create tall vertical pills
+- cover large portions of the Card
+- use strong white blocks that overpower the primary Card
+- let the Hint become more visually dominant than the Card content
+
+### Interaction principle
+
+The Card is the moving object.
+
+The Hint is the stable confirmation layer.
+
+The user should feel:
+
+> I am moving the Card, and the interface is quietly confirming the action.
+
+Not:
+
+> A new control is appearing every time I drag.
+
+---
+
 ## 11. Today — Overview mode
 
 Overview is the deck.
