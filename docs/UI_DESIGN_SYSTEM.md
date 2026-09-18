@@ -1003,6 +1003,46 @@ The purpose is to repair an unfinished historical boundary without rewriting lat
 
 ---
 
+## 14.2 Closed Day information hierarchy
+
+A Closed Day is a dedicated reflection/result screen, not just a success confirmation.
+
+It should answer both:
+
+- How did the day resolve overall?
+- Which Cards ended in each outcome?
+
+Use two layers:
+
+1. **Summary**
+   - Done / Tomorrow / Let Go counts
+   - Sleep
+   - Steps
+
+2. **Activity outcome detail**
+   - concrete Card titles grouped by outcome
+   - show only non-empty groups
+   - keep rows simple and factual
+
+Recommended grouping:
+
+```
+DONE
+✓ Card title
+
+TOMORROW
+← Card title
+
+LET GO
+↓ Card title
+```
+
+Do not hide all activity detail behind another interaction on this screen. The user has intentionally reached the end-of-day result and should be able to understand what happened without opening a second layer.
+
+The page may scroll when there are many Cards. Preserving meaningful information is more important than forcing the result into a single viewport.
+
+---
+
 ## 15. Responsive behaviour
 
 Responsive design means preserving hierarchy, not simply shrinking everything.
