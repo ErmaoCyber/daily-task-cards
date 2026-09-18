@@ -65,6 +65,7 @@ function TodayDeck({
   onAction,
   onEdit,
   onOverview,
+  onAdd,
   finalizing = false,
   onExitFinalizing,
   showCoach = false,
@@ -193,10 +194,22 @@ function TodayDeck({
           </button>
         )}
 
-        <span className="deck-count">
-          {cards.length - 1}{" "}
-          {cards.length === 2 ? "card" : "cards"} left
-        </span>
+        <div className="deck-heading-actions">
+          <span className="deck-count">
+            {cards.length - 1}{" "}
+            {cards.length === 2 ? "card" : "cards"} left
+          </span>
+          {!finalizing && (
+            <button
+              className="deck-add"
+              type="button"
+              aria-label="Add Card"
+              onClick={onAdd}
+            >
+              +
+            </button>
+          )}
+        </div>
       </div>
 
       {finalizing && (
@@ -343,10 +356,12 @@ function OverviewDeck({
   const [selectedIndex, setSelectedIndex] =
     useState(initialIndex);
   const [dragY, setDragY] = useState(0);
+  const [dragging, setDragging] = useState(false);
   const [enteringId, setEnteringId] = useState(null);
   const origin = useRef(null);
   const ignoreClick = useRef(false);
   const timer = useRef(null);
+  const wheelAt = useRef(0);
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
@@ -378,11 +393,45 @@ function OverviewDeck({
   }
 
   function enter(card) {
-    if (enteringId) return;
+    if (!card || enteringId) return;
     setEnteringId(card.id);
     timer.current = setTimeout(
       () => onEnter(card.id),
-      260,
+      270,
+    );
+  }
+
+  function begin(event) {
+    if (
+      !event.isPrimary ||
+      event.button !== 0 ||
+      enteringId
+    ) {
+      return;
+    }
+
+    origin.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      time: performance.now(),
+    };
+    setDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function move(event) {
+    const start = origin.current;
+    if (start?.id !== event.pointerId) return;
+
+    const raw = event.clientY - start.y;
+    const atTop = selectedIndex === 0 && raw > 0;
+    const atBottom =
+      selectedIndex === cards.length - 1 && raw < 0;
+    const resistance = atTop || atBottom ? 0.35 : 1;
+
+    setDragY(
+      Math.max(-78, Math.min(78, raw * resistance)),
     );
   }
 
@@ -392,19 +441,30 @@ function OverviewDeck({
 
     const dy = event.clientY - start.y;
     const dx = event.clientX - start.x;
-    origin.current = null;
-    setDragY(0);
+    const elapsed = Math.max(
+      1,
+      performance.now() - start.time,
+    );
+    const velocity = dy / elapsed;
 
-    if (
-      Math.abs(dy) > 38 &&
-      Math.abs(dy) > Math.abs(dx) * 1.2
-    ) {
+    origin.current = null;
+    setDragging(false);
+
+    const vertical =
+      Math.abs(dy) > Math.abs(dx) * 1.15;
+    const shouldMove =
+      vertical &&
+      (Math.abs(dy) > 34 || Math.abs(velocity) > 0.32);
+
+    if (shouldMove) {
       ignoreClick.current = true;
       select(selectedIndex + (dy < 0 ? 1 : -1));
       window.setTimeout(() => {
         ignoreClick.current = false;
-      }, 0);
+      }, 80);
     }
+
+    setDragY(0);
   }
 
   if (!cards.length) return null;
@@ -412,14 +472,14 @@ function OverviewDeck({
   return (
     <div
       className={`overview-deck ${
-        enteringId ? "is-entering-focus" : ""
-      }`}
+        dragging ? "is-dragging" : ""
+      } ${enteringId ? "is-entering-focus" : ""}`}
       style={{ "--browse-drag": `${dragY}px` }}
       role="listbox"
       aria-label="Still today cards"
-      aria-activedescendant={`overview-card-${cards[
-        selectedIndex
-      ]?.id}`}
+      aria-activedescendant={`overview-card-${
+        cards[selectedIndex]?.id
+      }`}
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === "ArrowDown") {
@@ -436,50 +496,42 @@ function OverviewDeck({
           enter(cards[selectedIndex]);
         }
       }}
-      onPointerDown={(event) => {
+      onWheel={(event) => {
         if (
-          !event.isPrimary ||
-          event.button !== 0 ||
-          enteringId
+          enteringId ||
+          Math.abs(event.deltaY) < 14
         ) {
           return;
         }
 
-        origin.current = {
-          id: event.pointerId,
-          x: event.clientX,
-          y: event.clientY,
-        };
-        event.currentTarget.setPointerCapture(
-          event.pointerId,
+        event.preventDefault();
+        const now = performance.now();
+        if (now - wheelAt.current < 170) return;
+        wheelAt.current = now;
+        select(
+          selectedIndex + (event.deltaY > 0 ? 1 : -1),
         );
       }}
-      onPointerMove={(event) => {
-        if (origin.current?.id !== event.pointerId) return;
-        setDragY(
-          Math.max(
-            -34,
-            Math.min(
-              34,
-              event.clientY - origin.current.y,
-            ),
-          ),
-        );
-      }}
+      onPointerDown={begin}
+      onPointerMove={move}
       onPointerUp={release}
       onPointerCancel={() => {
         origin.current = null;
+        setDragging(false);
         setDragY(0);
       }}
       onLostPointerCapture={() => {
         origin.current = null;
+        setDragging(false);
         setDragY(0);
       }}
     >
       <div className="overview-deck-stack">
         {cards.map((card, index) => {
-          const selected = index === selectedIndex;
-          const distance = Math.abs(index - selectedIndex);
+          const relative = index - selectedIndex;
+          const distance = Math.abs(relative);
+          const selected = relative === 0;
+          const far = distance > 3;
 
           return (
             <button
@@ -490,14 +542,15 @@ function OverviewDeck({
               key={card.id}
               className={`overview-deck-card ${
                 selected ? "is-selected" : ""
-              } ${
+              } ${far ? "is-far" : ""} ${
                 enteringId === card.id
                   ? "is-entering-card"
                   : ""
               }`}
               style={{
-                "--card-distance": distance,
-                "--card-index": index,
+                "--relative": relative,
+                "--distance": distance,
+                zIndex: 30 - distance,
               }}
               onClick={() => {
                 if (ignoreClick.current) return;
@@ -535,6 +588,7 @@ function TodayOverview({
   letgo,
   selectedId,
   onEnter,
+  onAdd,
   onCloseToday,
 }) {
   const mini = (card) => (
@@ -550,7 +604,17 @@ function TodayOverview({
   return (
     <section className="today-overview">
       <div className="overview-content">
-        <h2>Today</h2>
+        <div className="overview-title-row">
+          <h2>Today</h2>
+          <button
+            className="deck-add overview-add"
+            type="button"
+            aria-label="Add Card"
+            onClick={onAdd}
+          >
+            +
+          </button>
+        </div>
         <p className="open-count">
           {open.length
             ? `${open.length} still open`
@@ -932,6 +996,11 @@ function App() {
     setMode("closing");
   }
 
+  function openAddCard() {
+    setToast(null);
+    setEditor({ card: null });
+  }
+
   const dateLabel =
     new Intl.DateTimeFormat("en", {
       weekday: "long",
@@ -979,16 +1048,6 @@ function App() {
             steps={steps}
           />
 
-          <button
-            className="add-entry"
-            aria-label="Add Card"
-            onClick={() => {
-              setToast(null);
-              setEditor({ card: null });
-            }}
-          >
-            +
-          </button>
         </div>
       </div>
 
@@ -1002,6 +1061,7 @@ function App() {
             setEditor({ card });
           }}
           onOverview={() => setMode("overview")}
+          onAdd={openAddCard}
           showCoach={showGestureCoach}
         />
       ) : mode === "closing" && open.length ? (
@@ -1027,6 +1087,7 @@ function App() {
           letgo={letgo}
           selectedId={firstId}
           onEnter={enter}
+          onAdd={openAddCard}
           onCloseToday={requestCloseToday}
         />
       )}
