@@ -1396,3 +1396,191 @@ button.overview-mini:hover {
     transform: translateY(0);
   }
 }
+
+
+/* Daily wrap-up and history */
+.wrap-up-mode .deck-area {
+  padding-top: 14px;
+}
+
+.wrap-up-note {
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #eef1e8;
+  color: #7f8c76;
+}
+
+.wrap-up-note > span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.wrap-up-note p {
+  margin: 0;
+  font-size: 11px;
+}
+
+.day-actions {
+  margin-top: 28px;
+}
+
+.wrap-up-link {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  color: #64755d;
+  border-top: 1px solid #dfe4d8;
+  padding: 17px 2px 4px;
+  font-size: 12px;
+}
+
+.wrap-up-link span {
+  font-size: 17px;
+}
+
+.outcome-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: 20px 0 24px;
+  color: #7f8a76;
+  font-size: 11px;
+}
+
+.outcome-counts span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.outcome-counts strong {
+  color: #344a3a;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.close-metrics {
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.steps-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.steps-field input {
+  width: 112px;
+  border: 0;
+  border-bottom: 1px solid #cbd4c2;
+  background: transparent;
+  color: #344a3a;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 0 0 6px;
+}
+
+.steps-field input:focus-visible {
+  outline: 0;
+  border-bottom-color: #819674;
+}
+
+.day-card-large {
+  margin: 28px 0 10px;
+  padding: 26px;
+  border-radius: 16px;
+  background: #e9ede2;
+  text-align: left;
+}
+
+.day-card-large .outcome-counts {
+  margin-top: 0;
+}
+
+.history-list {
+  margin-top: 24px;
+}
+
+.history-outcomes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #8a967d;
+  white-space: nowrap;
+}
+
+.history-outcomes small {
+  font-size: 9px;
+}
+
+.history-today {
+  margin-top: 0;
+}
+
+.history-detail {
+  max-width: 440px;
+  margin: 0 auto 45px;
+  animation: arrive 0.25s ease;
+}
+
+.history-detail h1 {
+  margin-bottom: 26px;
+}
+
+.detail-section {
+  margin-top: 28px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e3e7dd;
+}
+
+.detail-row:last-child {
+  border-bottom: 0;
+}
+
+.detail-row > span {
+  width: 20px;
+  color: #839178;
+}
+
+.detail-row strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: #405344;
+}
+
+@media (max-width: 600px) {
+  .heading-tools .sleep {
+    display: none;
+  }
+
+  .close-day,
+  .closed {
+    margin-top: 24px;
+  }
+
+  .outcome-counts {
+    gap: 8px 14px;
+  }
+
+  .day-card-large {
+    padding: 22px;
+  }
+
+  .history-outcomes {
+    display: none;
+  }
+}
