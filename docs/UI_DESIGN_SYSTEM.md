@@ -118,6 +118,30 @@ The navigation must never look like three unrelated controls.
 
 ---
 
+## 3.4 Vertical rhythm and short-page composition
+
+Mobile pages must not place all meaningful content at the top of the viewport and leave the remaining usable space visually empty.
+
+For short screens and short content states:
+
+- place the composition around the upper-middle or visual center of the usable area
+- keep related information grouped, but do not compress it into a tight block
+- use spacing to create hierarchy, not a large empty band
+- modal and sheet content should be vertically balanced rather than visually attached to the top edge
+- result states such as Closed Day should read as one centered composition
+- detail pages that may grow should remain scrollable, but short content should still begin with deliberate top spacing
+
+Avoid:
+
+- top-heavy layouts with a large unused lower half
+- forcing every element into the first third of the screen
+- creating empty space only because the bottom navigation is fixed
+- shrinking content to preserve an arbitrary one-screen layout
+
+When content is short, the viewport itself becomes part of the composition and should be balanced intentionally.
+
+---
+
 ## 4. Typography system
 
 Typography must remain readable on a real phone.
