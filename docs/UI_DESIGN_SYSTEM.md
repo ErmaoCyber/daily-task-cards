@@ -1054,6 +1054,24 @@ When the Closed Day contains activity details:
 
 The action should remain visually secondary to the closed state and date, but clearly discoverable.
 
+### Closed Day header control language
+
+The closed-state indicator and the Calendar action belong to the same header control system.
+
+Required:
+
+- keep the closed-state icon and `DAY CLOSED` label on one line
+- keep the Calendar icon and `Calendar` label on one line
+- use the same icon family, stroke weight, optical size, and vertical alignment
+- use SVG/icon components from the product icon system rather than emoji or Unicode symbols that may render differently by platform
+- place the date and supporting copy on the next visual layer
+
+Avoid:
+
+- a large standalone status icon on one line while another action uses icon + text inline
+- emoji-style symbols such as `↗`
+- mixing filled system emoji with line icons
+
 ---
 
 ## 15. Responsive behaviour
