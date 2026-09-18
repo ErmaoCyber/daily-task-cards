@@ -243,6 +243,7 @@ export default function MeView() {
   const [view, setView] = useState("home");
   const [backDrag, setBackDrag] = useState(0);
   const backOrigin = useRef(null);
+  const suppressClick = useRef(false);
 
   function backToMe() {
     setBackDrag(0);
@@ -254,8 +255,7 @@ export default function MeView() {
     if (
       view === "home" ||
       !event.isPrimary ||
-      event.button !== 0 ||
-      event.clientX > 28
+      event.button !== 0
     ) {
       return;
     }
@@ -264,6 +264,7 @@ export default function MeView() {
       id: event.pointerId,
       x: event.clientX,
       y: event.clientY,
+      swiping: false,
     };
 
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -273,12 +274,26 @@ export default function MeView() {
     const start = backOrigin.current;
     if (start?.id !== event.pointerId) return;
 
-    const dx = Math.max(0, event.clientX - start.x);
+    const rawDx = event.clientX - start.x;
+    const dx = Math.max(0, rawDx);
     const dy = Math.abs(event.clientY - start.y);
 
-    if (dy > dx && dx < 14) return;
+    if (!start.swiping) {
+      if (Math.abs(rawDx) < 10 && dy < 10) return;
 
-    setBackDrag(Math.min(dx, 72));
+      if (rawDx <= 0 || dx <= dy * 1.15) {
+        return;
+      }
+
+      start.swiping = true;
+      suppressClick.current = true;
+    }
+
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+
+    setBackDrag(Math.min(dx, 96));
   }
 
   function finishBackGesture(event) {
@@ -287,15 +302,21 @@ export default function MeView() {
 
     const dx = event.clientX - start.x;
     const dy = Math.abs(event.clientY - start.y);
+    const wasSwipe = start.swiping;
 
     backOrigin.current = null;
 
-    if (dx > 72 && dx > dy * 1.2) {
+    if (wasSwipe && dx > 64 && dx > dy * 1.15) {
       backToMe();
-      return;
+    } else {
+      setBackDrag(0);
     }
 
-    setBackDrag(0);
+    if (wasSwipe) {
+      window.setTimeout(() => {
+        suppressClick.current = false;
+      }, 120);
+    }
   }
 
   function cancelBackGesture(event) {
@@ -317,13 +338,19 @@ export default function MeView() {
     <section
       className={`me-view ${
         detailOpen ? "me-detail-open" : ""
-      } ${backDrag ? "is-edge-swiping" : ""}`}
+      } ${backDrag ? "is-swipe-backing" : ""}`}
       style={{ "--me-back-drag": `${backDrag}px` }}
       onPointerDown={beginBackGesture}
       onPointerMove={moveBackGesture}
       onPointerUp={finishBackGesture}
       onPointerCancel={cancelBackGesture}
       onLostPointerCapture={cancelBackGesture}
+      onClickCapture={(event) => {
+        if (!suppressClick.current) return;
+        event.preventDefault();
+        event.stopPropagation();
+        suppressClick.current = false;
+      }}
     >
       {view === "home" && <MeHome onOpen={setView} />}
       {view === "life" && <LifeList onBack={onBack} />}
