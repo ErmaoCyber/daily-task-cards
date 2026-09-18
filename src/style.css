@@ -6963,3 +6963,103 @@ main {
     font-size: 13px;
   }
 }
+
+
+/* Closed Day header icon convergence */
+
+.closed-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.closed-status,
+.closed-calendar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+
+.closed-status-icon,
+.closed-calendar-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 18px;
+}
+
+.closed-status-icon svg,
+.closed-calendar-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.closed-status {
+  color: #6f815f;
+}
+
+.closed-status .eyebrow {
+  margin: 0;
+}
+
+.closed-calendar-link {
+  margin: 0;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: #eef1e8;
+  color: #5f705d;
+  font-size: 11px;
+}
+
+.closed-heading-copy {
+  margin-top: 14px;
+}
+
+.closed-heading-copy h2 {
+  margin: 0;
+}
+
+.closed-heading-copy > p {
+  margin-top: 8px;
+}
+
+.closed .clear-icon {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .closed-heading-row {
+    gap: 10px;
+  }
+
+  .closed-status,
+  .closed-calendar-link {
+    min-height: 34px;
+  }
+
+  .closed-status-icon,
+  .closed-calendar-icon,
+  .closed-status-icon svg,
+  .closed-calendar-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .closed-calendar-link {
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
+  .closed-heading-copy {
+    margin-top: 12px;
+  }
+}
