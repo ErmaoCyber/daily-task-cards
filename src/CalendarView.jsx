@@ -251,9 +251,6 @@ export default function CalendarView({
       y: event.clientY,
     };
     setMonthDragging(true);
-    event.currentTarget.setPointerCapture(
-      event.pointerId,
-    );
   }
 
   function moveMonthSwipe(event) {
