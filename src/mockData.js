@@ -138,11 +138,20 @@ export function createMockHistory(today) {
 }
 
 export function createMockOpenPastDays(today) {
+  const date = plusDays(today, -4);
+
   return [
     {
-      date: plusDays(today, -4),
+      date,
       cardCount: 3,
       note: "This day was left open in the prototype.",
+      sleep: "7h 14m",
+      steps: 7428,
+      cards: [
+        timedCard(901, "Java Study", date),
+        timedCard(902, "Buy groceries", date, "18:00"),
+        timedCard(903, "Reply to emails", date),
+      ],
     },
   ];
 }
