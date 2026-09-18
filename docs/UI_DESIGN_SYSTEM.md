@@ -345,7 +345,25 @@ Frozen interaction:
 
 Gesture feedback appears on the card.
 
+During an active drag, the current action must be immediately legible:
+- feedback is positioned toward the gesture direction
+- feedback uses stronger contrast than passive helper text
+- the action label and direction/icon should remain readable while the card is moving
+- feedback disappears when the gesture ends
+
 The permanent four-direction legend should not remain on screen during normal use.
+
+### Focus vertical balance
+
+On mobile, the Focus composition should use the available canvas deliberately.
+
+The card may grow within a controlled responsive range when the viewport is tall enough, so the screen does not leave a large accidental empty band below the card.
+
+Do not solve this by making the card a full-screen panel. The desired result is:
+- a large but still card-like object
+- compact spacing between card and caption
+- visually balanced whitespace above and below the Focus composition
+- no large unused region caused only by fixed viewport geometry
 
 ---
 
