@@ -7063,3 +7063,31 @@ main {
     margin-top: 12px;
   }
 }
+
+
+/* Me viewport-level swipe-back hit area */
+
+@media (max-width: 600px) {
+  /*
+   * Me detail pages must keep the swipe-back listener alive across the
+   * visually empty part of the page. The fixed bottom nav sits above this
+   * surface and continues to own its own touch area.
+   */
+  .page-me main.screen-fixed {
+    min-height: calc(
+      100dvh - 24px - env(safe-area-inset-bottom)
+    );
+  }
+
+  .page-me .me-view.me-detail-open {
+    min-height: calc(
+      100dvh - 34px - env(safe-area-inset-bottom)
+    );
+    margin-bottom: 0;
+    padding-bottom: 88px;
+  }
+
+  .page-me .me-view.me-detail-open > .me-detail {
+    min-height: inherit;
+  }
+}
