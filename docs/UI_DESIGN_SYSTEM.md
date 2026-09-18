@@ -509,6 +509,244 @@ Not:
 
 ---
 
+## 10.2 Today Screen & Card Style v2
+
+The Today screen is the product's primary action surface.
+
+Its purpose is not to display as much information as possible. Its purpose is to make one current Card feel clear, reachable, and easy to act on.
+
+### Screen hierarchy
+
+The Today screen uses three visual zones:
+
+```
+Lightweight top information
+Card stage
+Bottom navigation
+```
+
+The Card stage is the primary visual and interaction focus.
+
+The top information zone should provide context without competing with the Card.
+
+### Top information
+
+The top zone may contain:
+
+- current date
+- sleep
+- steps
+- remaining Card count
+- add Card action
+
+Rules:
+
+- keep the zone visually light
+- do not let metadata dominate the screen
+- reduce unnecessary vertical spacing
+- avoid decorative symbols that do not belong to the shared icon system
+
+### Deck label
+
+The deck label should be quiet and text-led.
+
+Preferred:
+
+```
+TODAY
+```
+
+Optional:
+
+```
+TODAY DECK
+```
+
+Avoid decorative emoji-like or mismatched icons next to the label.
+
+If an icon is used in the future, it must come from the same visual system as the primary navigation icons and serve a clear purpose.
+
+### Card stage position
+
+The Card stage should sit around the visual center to lower-center portion of the usable content area.
+
+The exact position should be optimized for repeated thumb interaction on a real phone.
+
+The stage should not:
+
+- feel suspended too high on the page
+- collide visually with the bottom navigation
+- leave a large unused empty band below
+- force the user to repeatedly reach into an uncomfortable area
+
+The desired feeling is:
+
+> The Card is where the hand naturally wants to work.
+
+### Card stage stability
+
+The overall Card stack should have a stable resting position.
+
+Gesture movement belongs to the active Card, not to the whole page composition.
+
+The surrounding screen should remain visually anchored while the Card is dragged.
+
+### Card role
+
+A Card is a decision object.
+
+It is not:
+
+- a dashboard
+- a form
+- a project panel
+- a container for many metadata fields
+
+The Card should contain only enough information to answer:
+
+- What is this?
+- When does it belong?
+- Is there one small piece of useful context?
+
+### Card information structure
+
+Each Focus Card should use a stable three-layer information hierarchy.
+
+#### 1. Top meta
+
+Lightweight timing or origin context.
+
+Examples:
+
+- `2:00 PM`
+- `Anytime`
+- `From Life List`
+
+This layer is quiet and should never compete with the title.
+
+#### 2. Main title
+
+The strongest text element on the Card.
+
+Rules:
+
+- visually dominant
+- comfortably readable
+- usually one or two lines
+- left aligned by default
+- should remain readable during drag
+
+#### 3. Bottom support
+
+One optional light supporting line.
+
+Examples:
+
+- `From Life List`
+- `Recurring weekly`
+- `No strict time`
+- another factual, non-judgmental context line
+
+The support line exists to give the Card visual structure and useful context.
+
+It must not become motivational filler.
+
+### Card density
+
+The Card should feel spacious, but not hollow.
+
+Avoid:
+
+- a very large flat surface containing only one title
+- arbitrary decorative text added only to fill space
+- excessive metadata
+- multiple badges and buttons
+
+Use layout structure rather than extra content to solve emptiness.
+
+### Card proportions
+
+The Card should feel like a physical object with a stable proportion.
+
+Responsive sizing should preserve:
+
+- comfortable drag area
+- readable title
+- visible surrounding stack
+- balanced whitespace
+
+Do not stretch the Card simply because the viewport is tall.
+
+Do not make it so small that the gesture surface feels cramped.
+
+### Card surface
+
+The active Card uses the primary deep-green surface.
+
+The Card should gain visual richness through:
+
+- deliberate padding
+- typography hierarchy
+- restrained shadow
+- subtle internal alignment
+
+Not through:
+
+- gradients
+- heavy borders
+- decorative textures
+- multiple strong colors
+
+### Surrounding Cards
+
+Back Cards should communicate stack depth without competing with the active Card.
+
+They should:
+
+- use quiet pale-green surfaces
+- remain partially visible
+- have consistent radius and geometry
+- support the illusion of a physical stack
+
+They should not reveal unnecessary detail.
+
+### Gesture Hint relationship
+
+The unified Gesture Hint remains fixed in the Card stage.
+
+The Card moves; the Hint remains stable.
+
+The Hint should never visually overpower:
+
+- Card title
+- Card silhouette
+- Card stack
+
+### Visual review test
+
+Before accepting a Today Card redesign, check:
+
+- Does the Card dominate attention without overwhelming the page?
+- Is the Card positioned where repeated thumb gestures feel natural?
+- Does the Card feel spacious but not empty?
+- Is the title clearly the strongest element?
+- Does the top information remain secondary?
+- Does the screen still look calm when no gesture is happening?
+- Does the Card still feel like part of the same product family as Calendar and Me?
+
+### Current implementation priority
+
+The next Today redesign should proceed in this order:
+
+1. rebalance the top information area
+2. remove the mismatched icon beside the Today deck label
+3. reposition the Card stage for better hand ergonomics
+4. rebuild the Focus Card using the three-layer content structure
+5. tune Card height and typography on real phone screenshots
+6. preserve the already-frozen centered Gesture Hint behaviour
+
+---
+
 ## 11. Today — Overview mode
 
 Overview is the deck.
