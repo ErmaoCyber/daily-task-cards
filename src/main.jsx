@@ -745,7 +745,9 @@ function TodayOverview({
   ];
 
   return (
-    <section className="today-overview">
+    <section className={`today-overview ${
+      open.length ? "has-open-cards" : "is-clear"
+    }`}>
       <div className="overview-content">
         <div className="overview-title-row">
           <div>
