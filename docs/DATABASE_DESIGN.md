@@ -906,20 +906,77 @@ The domain model should make those future additions possible without requiring t
 
 ---
 
-## 25. Open decisions before migrations
+## 25. Frozen implementation decisions
 
-The following should be reviewed before writing SQL migrations:
+The first migration follows these decisions.
 
-- UUID vs bigint primary keys
-- PostgreSQL enum vs varchar + check constraints
-- exact `rrule` representation and recurrence library
-- whether `CardOutcome` should allow multiple correction records per occurrence
-- whether DayRecord counts are immutable snapshots after close
-- historical correction policy after a day is CLOSED
-- user deletion / data retention rules
-- exact reminder ownership (Card vs Occurrence) once reminder UX is designed
+### Primary keys
 
-These are architecture decisions, not reasons to delay the overall schema model.
+Use PostgreSQL `uuid` for domain entity identifiers.
+
+For initial compatibility, database-generated IDs use:
+
+```sql
+DEFAULT gen_random_uuid()
+```
+
+The schema does not depend on PostgreSQL 18 `uuidv7()`.
+
+A later application layer may generate UUIDv7 values if the selected Java/PostgreSQL runtime makes that worthwhile. The database type remains unchanged.
+
+### Domain states
+
+Java will use enums.
+
+PostgreSQL stores state values as:
+
+```text
+varchar + CHECK constraint
+```
+
+rather than PostgreSQL enum types.
+
+This gives database-level validation while keeping state migrations straightforward.
+
+### Historical corrections
+
+Historical outcomes are append-only facts.
+
+A correction creates a new `card_outcomes` row instead of rewriting or deleting the previous fact.
+
+`card_outcomes.supersedes_outcome_id` points to the outcome being corrected.
+
+Normal Calendar/Review reads use the current effective outcome; audit/debug flows may inspect the entire correction chain.
+
+### Recurrence
+
+Recurring definitions use an RRULE-compatible representation.
+
+The product initially supports only a small UI subset, while persistence remains capable of richer recurrence later.
+
+Recurring definitions are materialized into bounded future occurrence windows rather than generating an infinite series.
+
+### Time types
+
+Use:
+
+```text
+date        = business calendar date
+time        = optional local scheduled clock time
+timestamptz = actual recorded instant
+timezone    = IANA timezone where local interpretation matters
+```
+
+Do not replace a business date with a timestamp simply because a timestamp contains a date component.
+
+### Remaining open decisions
+
+The following may remain open until their feature is implemented:
+
+- exact recurrence Java library
+- immutable-vs-correctable policy for already CLOSED DayRecord snapshots
+- user deletion / retention policy
+- exact reminder ownership and notification delivery model
 
 ---
 
