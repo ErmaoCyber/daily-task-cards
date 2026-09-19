@@ -18,6 +18,13 @@ import {
   rollToDay,
   sortCards,
 } from "./planner";
+import {
+  createCard as createCardApi,
+  fetchCardsForDate,
+  markDone as markDoneApi,
+  letGo as letGoApi,
+  moveOccurrence,
+} from "./api";
 import "./style.css";
 
 const actions = {
@@ -879,6 +886,19 @@ function App() {
   const nextId = useRef(1000);
   const previousDay = useRef(day);
 
+  async function reloadDay(date = day) {
+    const apiCards = await fetchCardsForDate(date);
+
+    setCards((previous) => [
+      ...previous.filter(
+        (card) =>
+          card.scheduledDate !== date &&
+          card.movedFrom !== date,
+      ),
+      ...apiCards,
+    ]);
+  }
+
   useEffect(() => {
     const tick = () => setNow(new Date());
     const timer = setInterval(tick, 30000);
@@ -889,6 +909,13 @@ function App() {
       window.removeEventListener("focus", tick);
     };
   }, []);
+
+  useEffect(() => {
+    reloadDay(day).catch((error) => {
+      console.error(error);
+      setToast({ label: "Could not load today" });
+    });
+  }, [day]);
 
   useEffect(() => {
     if (
@@ -1010,10 +1037,8 @@ function App() {
     letgo.length,
   ]);
 
-  function act(id, action) {
-    const original = cards.find(
-      (card) => card.id === id,
-    );
+  async function act(id, action) {
+    const original = cards.find((card) => card.id === id);
     setFirstId(null);
 
     if (action === "notnow") {
@@ -1022,37 +1047,38 @@ function App() {
           ? previous
           : [...previous, id],
       );
-    } else {
-      setCards((previous) =>
-        previous.map((card) =>
-          card.id !== id
-            ? card
-            : action === "tomorrow"
-              ? {
-                  ...card,
-                  scheduledDate: plusDays(day, 1),
-                  movedFrom: day,
-                  status: "tomorrow",
-                }
-              : { ...card, status: action },
-        ),
-      );
+      setToast({ label: "Not now · still today" });
+      return;
     }
 
-    setToast({
-      label:
-        action === "notnow"
-          ? "Not now · still today"
-          : action === "letgo"
+    try {
+      if (action === "done") {
+        await markDoneApi(id);
+      } else if (action === "letgo") {
+        await letGoApi(id);
+      } else if (action === "tomorrow") {
+        await moveOccurrence(id, plusDays(day, 1));
+      }
+
+      await reloadDay(day);
+
+      setToast({
+        label:
+          action === "letgo"
             ? "Let go"
             : action === "tomorrow"
               ? "Moved to tomorrow"
               : "Done",
-      undo:
-        action === "letgo" && mode !== "closing"
-          ? original
-          : null,
-    });
+        undo: null,
+      });
+    } catch (error) {
+      console.error(error);
+      setToast({ label: "Could not update card" });
+
+      if (original) {
+        setFirstId(original.id);
+      }
+    }
   }
 
   function enter(id) {
@@ -1071,7 +1097,7 @@ function App() {
     });
   }
 
-  function save(values) {
+  async function save(values) {
     if (editor.card) {
       const id = editor.card.id;
       setCards((previous) =>
@@ -1081,22 +1107,26 @@ function App() {
             : card,
         ),
       );
-    } else {
-      const card = {
-        ...values,
-        id: nextId.current++,
-      };
-      setCards((previous) => [...previous, card]);
+      setEditor(null);
+      setToast({ label: "Saved locally" });
+      return;
     }
 
-    setEditor(null);
-    setToast({
-      label: editor.card
-        ? "Saved"
-        : values.scheduledDate === day
-          ? "Added to today"
-          : `Added · ${values.scheduledDate}`,
-    });
+    try {
+      await createCardApi(values);
+      await reloadDay(values.scheduledDate);
+
+      setEditor(null);
+      setToast({
+        label:
+          values.scheduledDate === day
+            ? "Added to today"
+            : `Added · ${values.scheduledDate}`,
+      });
+    } catch (error) {
+      console.error(error);
+      setToast({ label: "Could not add card" });
+    }
   }
 
   function closeToday() {
