@@ -65,9 +65,31 @@ public class CardService {
 
     @Transactional(readOnly = true)
     public List<TodayCard> findForDate(UUID userId, LocalDate date) {
-        List<CardOccurrence> occurrences =
-                occurrenceRepository.findByUserIdAndScheduledDateOrderByScheduledTimeAsc(userId, date);
+        return toTodayCards(
+                occurrenceRepository.findByUserIdAndScheduledDateOrderByScheduledTimeAsc(userId, date)
+        );
+    }
 
+    @Transactional(readOnly = true)
+    public List<TodayCard> findForDateRange(UUID userId, LocalDate startDate, LocalDate endDate) {
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("startDate and endDate must not be null");
+        }
+        if (endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("endDate must not be before startDate");
+        }
+
+        return toTodayCards(
+                occurrenceRepository
+                        .findByUserIdAndScheduledDateBetweenOrderByScheduledDateAscScheduledTimeAsc(
+                                userId,
+                                startDate,
+                                endDate
+                        )
+        );
+    }
+
+    private List<TodayCard> toTodayCards(List<CardOccurrence> occurrences) {
         var cardsById = cardRepository.findAllById(
                         occurrences.stream().map(CardOccurrence::getCardId).distinct().toList()
                 )

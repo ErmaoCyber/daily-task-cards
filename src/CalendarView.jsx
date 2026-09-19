@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { fetchCalendarRange } from "./api";
 
 const weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
@@ -204,6 +205,7 @@ export default function CalendarView({
   const [monthDragging, setMonthDragging] = useState(false);
   const [monthAnimating, setMonthAnimating] = useState(false);
   const [detailRecord, setDetailRecord] = useState(null);
+  const [calendarCards, setCalendarCards] = useState(cards);
   const monthOrigin = useRef(null);
   const ignoreDayClick = useRef(false);
   const monthTimer = useRef(null);
@@ -216,6 +218,56 @@ export default function CalendarView({
   useEffect(() => {
     setDetailRecord(null);
   }, [selectedDate]);
+
+  useEffect(() => {
+    setCalendarCards((current) => {
+      const incomingIds = new Set(cards.map((card) => card.id));
+      return [
+        ...current.filter((card) => !incomingIds.has(card.id)),
+        ...cards,
+      ];
+    });
+  }, [cards]);
+
+  useEffect(() => {
+    const first = new Date(
+      monthCursor.getFullYear(),
+      monthCursor.getMonth(),
+      1,
+      12,
+    );
+    const mondayOffset = (first.getDay() + 6) % 7;
+    const gridStart = new Date(first);
+    gridStart.setDate(first.getDate() - mondayOffset);
+    const gridEnd = new Date(gridStart);
+    gridEnd.setDate(gridStart.getDate() + 41);
+
+    let cancelled = false;
+
+    fetchCalendarRange(dayKey(gridStart), dayKey(gridEnd))
+      .then((loaded) => {
+        if (cancelled) return;
+
+        const start = dayKey(gridStart);
+        const end = dayKey(gridEnd);
+
+        setCalendarCards((current) => [
+          ...current.filter(
+            (card) =>
+              card.scheduledDate < start ||
+              card.scheduledDate > end,
+          ),
+          ...loaded,
+        ]);
+      })
+      .catch((error) => {
+        console.error("Could not load calendar range", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [monthCursor]);
 
   const historyByDate = useMemo(
     () => new Map(history.map((record) => [record.date, record])),
@@ -246,7 +298,11 @@ export default function CalendarView({
   }, [monthCursor]);
 
   const cardsForDate = (date) =>
-    cards.filter((card) => card.scheduledDate === date);
+    calendarCards.filter(
+      (card) =>
+        card.scheduledDate === date &&
+        card.occurrenceState !== "MOVED",
+    );
 
   function participatingCount(date) {
     const record = historyByDate.get(date);
@@ -261,7 +317,7 @@ export default function CalendarView({
 
     if (date === today) {
       return new Set(
-        cards
+        calendarCards
           .filter(
             (card) =>
               card.scheduledDate === date ||
@@ -416,16 +472,16 @@ export default function CalendarView({
     selectedCards.length - 2,
   );
 
-  const todayOpen = cards.filter(
+  const todayOpen = calendarCards.filter(
     (card) =>
       card.scheduledDate === today && !card.status,
   );
-  const todayDone = cards.filter(
+  const todayDone = calendarCards.filter(
     (card) =>
       card.scheduledDate === today &&
       card.status === "done",
   );
-  const todayTomorrow = cards.filter(
+  const todayTomorrow = calendarCards.filter(
     (card) =>
       card.movedFrom === today &&
       card.status === "tomorrow",

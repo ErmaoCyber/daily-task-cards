@@ -50,6 +50,21 @@ public class CardController {
                 .toList();
     }
 
+    @GetMapping("/calendar")
+    public List<CardOccurrenceResponse> calendar(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+    ) {
+        return cardService.findForDateRange(
+                        currentUserProvider.currentUserId(),
+                        startDate,
+                        endDate
+                )
+                .stream()
+                .map(CardOccurrenceResponse::from)
+                .toList();
+    }
+
     @PostMapping("/occurrences/{occurrenceId}/done")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markDone(

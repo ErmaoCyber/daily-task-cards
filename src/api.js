@@ -118,3 +118,37 @@ export function moveOccurrence(occurrenceId, targetDate) {
     body: JSON.stringify({ targetDate }),
   });
 }
+
+
+function toCalendarCard(card) {
+  const shortTime = card.scheduledTime
+    ? card.scheduledTime.slice(0, 5)
+    : null;
+
+  return {
+    id: card.occurrenceId,
+    cardId: card.cardId,
+    title: card.title,
+    note: card.note || "",
+    scheduledDate: card.scheduledDate,
+    shortTime,
+    time: formatTime(shortTime),
+    timezone: card.timezone,
+    occurrenceState: card.state,
+    status:
+      card.state === "OPEN"
+        ? undefined
+        : card.state === "DONE"
+          ? "done"
+          : card.state === "LET_GO"
+            ? "letgo"
+            : card.state.toLowerCase(),
+  };
+}
+
+export async function fetchCalendarRange(startDate, endDate) {
+  const cards = await request(
+    `/api/calendar?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
+  );
+  return cards.map(toCalendarCard);
+}

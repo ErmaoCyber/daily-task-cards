@@ -13,4 +13,10 @@ public interface CardOccurrenceRepository extends JpaRepository<CardOccurrence, 
             UUID userId,
             LocalDate scheduledDate
     );
+
+    List<CardOccurrence> findByUserIdAndScheduledDateBetweenOrderByScheduledDateAscScheduledTimeAsc(
+            UUID userId,
+            LocalDate startDate,
+            LocalDate endDate
+    );
 }
