@@ -86,6 +86,22 @@ public class CardOccurrence {
         return occurrence;
     }
 
+    public void resolveAs(OccurrenceState targetState, Instant resolvedAt) {
+        if (state != OccurrenceState.OPEN) {
+            throw new IllegalStateException("only OPEN occurrence can be resolved");
+        }
+        if (targetState == null || targetState == OccurrenceState.OPEN) {
+            throw new IllegalArgumentException("target state must be a resolved state");
+        }
+        if (resolvedAt == null) {
+            throw new IllegalArgumentException("resolvedAt must not be null");
+        }
+
+        state = targetState;
+        this.resolvedAt = resolvedAt;
+        updatedAt = resolvedAt;
+    }
+
     public UUID getId() {
         return id;
     }
