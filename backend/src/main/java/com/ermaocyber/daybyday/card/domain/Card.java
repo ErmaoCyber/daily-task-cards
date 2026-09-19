@@ -51,6 +51,28 @@ public class Card {
     protected Card() {
     }
 
+    public static Card create(UUID userId, String title, String note) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId must not be null");
+        }
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("title must not be blank");
+        }
+        if (title.length() > 240) {
+            throw new IllegalArgumentException("title must not exceed 240 characters");
+        }
+
+        Card card = new Card();
+        card.userId = userId;
+        card.title = title.trim();
+        card.note = note;
+        card.status = CardStatus.ACTIVE;
+        card.createdAt = Instant.now();
+        card.updatedAt = card.createdAt;
+        card.archivedAt = null;
+        return card;
+    }
+
     public UUID getId() {
         return id;
     }
