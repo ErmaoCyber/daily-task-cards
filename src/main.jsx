@@ -1113,10 +1113,18 @@ function App() {
     }
 
     try {
-      await createCardApi(values);
+      const created = await createCardApi(values);
       await reloadDay(values.scheduledDate);
 
       setEditor(null);
+
+      if (values.scheduledDate === day) {
+        setSkipped([]);
+        setFirstId(created.occurrenceId);
+        setPage("today");
+        setMode("deck");
+      }
+
       setToast({
         label:
           values.scheduledDate === day
@@ -1171,6 +1179,24 @@ function App() {
     setSkipped([]);
     setFirstId(null);
     setMode("closing");
+  }
+
+  async function openToday() {
+    setEditor(null);
+    setPastResolution(null);
+    setClosedRecord(null);
+    setSkipped([]);
+    setFirstId(null);
+    setPage("today");
+    setMode("overview");
+    setToast(null);
+
+    try {
+      await reloadDay(day);
+    } catch (error) {
+      console.error(error);
+      setToast({ label: "Could not load today" });
+    }
   }
 
   function openAddCard(initialDate = day) {
@@ -1358,12 +1384,7 @@ function App() {
           href="#"
           onClick={(event) => {
             event.preventDefault();
-            setEditor(null);
-            setPage("today");
-
-            if (!closedRecord) {
-              setMode("overview");
-            }
+            openToday();
           }}
         >
           <span className="brand-symbol">▱</span>
@@ -1411,12 +1432,7 @@ function App() {
             cards={cards}
             history={history}
             openPastDays={openPastDays}
-            onOpenToday={() => {
-              setPage("today");
-              if (!closedRecord) {
-                setMode("overview");
-              }
-            }}
+            onOpenToday={openToday}
             onAddCard={(date) => openAddCard(date)}
             onEditCard={openEditCard}
             onResolvePastDay={startPastResolution}
@@ -1443,7 +1459,7 @@ function App() {
               className={`nav-today ${
                 page === "today" ? "active" : ""
               }`}
-              onClick={() => setPage("today")}
+              onClick={openToday}
             >
               <span className="nav-icon"><NavIcon type="today" /></span>
               <span className="nav-label">Today</span>
