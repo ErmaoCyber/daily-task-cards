@@ -64,8 +64,35 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public List<CardOccurrence> findForDate(UUID userId, LocalDate date) {
-        return occurrenceRepository.findByUserIdAndScheduledDateOrderByScheduledTimeAsc(userId, date);
+    public List<TodayCard> findForDate(UUID userId, LocalDate date) {
+        List<CardOccurrence> occurrences =
+                occurrenceRepository.findByUserIdAndScheduledDateOrderByScheduledTimeAsc(userId, date);
+
+        var cardsById = cardRepository.findAllById(
+                        occurrences.stream().map(CardOccurrence::getCardId).distinct().toList()
+                )
+                .stream()
+                .collect(java.util.stream.Collectors.toMap(Card::getId, card -> card));
+
+        return occurrences.stream()
+                .map(occurrence -> {
+                    Card card = cardsById.get(occurrence.getCardId());
+                    if (card == null) {
+                        throw new IllegalStateException("card not found for occurrence");
+                    }
+
+                    return new TodayCard(
+                            occurrence.getId(),
+                            card.getId(),
+                            card.getTitle(),
+                            card.getNote(),
+                            occurrence.getScheduledDate(),
+                            occurrence.getScheduledTime(),
+                            occurrence.getTimezone(),
+                            occurrence.getState()
+                    );
+                })
+                .toList();
     }
 
     public void markDone(UUID userId, UUID occurrenceId) {

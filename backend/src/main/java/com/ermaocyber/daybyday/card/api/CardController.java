@@ -1,6 +1,7 @@
 package com.ermaocyber.daybyday.card.api;
 
 import com.ermaocyber.daybyday.card.application.CardService;
+import com.ermaocyber.daybyday.user.application.CurrentUserProvider;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,16 +22,18 @@ import java.util.UUID;
 public class CardController {
 
     private final CardService cardService;
+    private final CurrentUserProvider currentUserProvider;
 
-    public CardController(CardService cardService) {
+    public CardController(CardService cardService, CurrentUserProvider currentUserProvider) {
         this.cardService = cardService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @PostMapping("/cards")
     @ResponseStatus(HttpStatus.CREATED)
     public CardService.CreatedCard createCard(@Valid @RequestBody CreateCardRequest request) {
         return cardService.createCard(
-                request.userId(),
+                currentUserProvider.currentUserId(),
                 request.title(),
                 request.note(),
                 request.scheduledDate(),
@@ -40,11 +43,8 @@ public class CardController {
     }
 
     @GetMapping("/today")
-    public List<CardOccurrenceResponse> today(
-            @RequestParam UUID userId,
-            @RequestParam LocalDate date
-    ) {
-        return cardService.findForDate(userId, date)
+    public List<CardOccurrenceResponse> today(@RequestParam LocalDate date) {
+        return cardService.findForDate(currentUserProvider.currentUserId(), date)
                 .stream()
                 .map(CardOccurrenceResponse::from)
                 .toList();
@@ -54,18 +54,18 @@ public class CardController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markDone(
             @PathVariable UUID occurrenceId,
-            @Valid @RequestBody OccurrenceActionRequest request
+            @RequestBody(required = false) OccurrenceActionRequest request
     ) {
-        cardService.markDone(request.userId(), occurrenceId);
+        cardService.markDone(currentUserProvider.currentUserId(), occurrenceId);
     }
 
     @PostMapping("/occurrences/{occurrenceId}/let-go")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void letGo(
             @PathVariable UUID occurrenceId,
-            @Valid @RequestBody OccurrenceActionRequest request
+            @RequestBody(required = false) OccurrenceActionRequest request
     ) {
-        cardService.letGo(request.userId(), occurrenceId);
+        cardService.letGo(currentUserProvider.currentUserId(), occurrenceId);
     }
 
     @PostMapping("/occurrences/{occurrenceId}/move")
@@ -74,7 +74,7 @@ public class CardController {
             @Valid @RequestBody MoveOccurrenceRequest request
     ) {
         UUID newOccurrenceId = cardService.move(
-                request.userId(),
+                currentUserProvider.currentUserId(),
                 occurrenceId,
                 request.targetDate()
         );
