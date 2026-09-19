@@ -4,3 +4,5 @@ dist/
 
 .env
 backend/target/
+
+backend/src/main/resources/application-local.yaml
