@@ -446,10 +446,7 @@ function OverviewDeck({
     if (!card || enteringId) return;
 
     setEnteringId(card.id);
-    timer.current = setTimeout(
-      () => onEnter(card.id),
-      250,
-    );
+    onEnter(card.id);
   }
 
   function begin(event) {
@@ -498,6 +495,16 @@ function OverviewDeck({
     if (shouldMove) {
       ignoreClick.current = true;
       moveSelection(dy < 0 ? 1 : -1);
+
+      window.setTimeout(() => {
+        ignoreClick.current = false;
+      }, 110);
+      return;
+    }
+
+    if (Math.hypot(dx, dy) < 8) {
+      ignoreClick.current = true;
+      enter(selectedCard);
 
       window.setTimeout(() => {
         ignoreClick.current = false;
@@ -1122,7 +1129,7 @@ function App() {
         setSkipped([]);
         setFirstId(created.occurrenceId);
         setPage("today");
-        setMode("deck");
+        setMode("overview");
       }
 
       setToast({
